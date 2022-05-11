@@ -16,8 +16,7 @@
 
 package androidx.paging
 
-import androidx.annotation.VisibleForTesting
-import java.util.concurrent.CopyOnWriteArrayList
+import androidx.paging.platform.CopyOnWriteArrayList
 
 /**
  * Wrapper class for a [PagingSource] factory intended for usage in [Pager] construction.
@@ -34,7 +33,6 @@ public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>
 ) : () -> PagingSource<Key, Value> {
 
-    @VisibleForTesting
     internal val pagingSources = CopyOnWriteArrayList<PagingSource<Key, Value>>()
 
     /**

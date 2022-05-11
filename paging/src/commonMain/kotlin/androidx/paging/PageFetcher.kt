@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.VisibleForTesting
 import androidx.paging.CombineSource.RECEIVER
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
@@ -226,7 +225,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
         private val retryEventBus: ConflatedEventBus<Unit>
     ) : UiReceiver {

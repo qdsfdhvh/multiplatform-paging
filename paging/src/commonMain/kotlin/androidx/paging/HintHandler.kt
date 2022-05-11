@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import kotlinx.coroutines.channels.BufferOverflow

@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.LoadState.NotLoading
 
 /**
@@ -31,7 +30,6 @@ public data class LoadStates(
     public val append: LoadState
 ) {
     /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public inline fun forEach(op: (LoadType, LoadState) -> Unit) {
         op(LoadType.REFRESH, refresh)
         op(LoadType.PREPEND, prepend)

@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
@@ -35,7 +34,6 @@ import kotlinx.coroutines.withContext
  * @hide
  */
 @OptIn(DelicateCoroutinesApi::class)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LegacyPagingSource<Key : Any, Value : Any>(
     private val fetchDispatcher: CoroutineDispatcher,
     internal val dataSource: DataSource<Key, Value>
@@ -55,7 +53,6 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setPageSize(pageSize: Int) {
         check(this.pageSize == PAGE_SIZE_NOT_SET || pageSize == this.pageSize) {
             "Page size is already set to ${this.pageSize}."

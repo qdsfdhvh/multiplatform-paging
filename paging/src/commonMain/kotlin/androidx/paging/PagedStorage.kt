@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource.LoadResult.Page
 import java.util.AbstractList
 
@@ -111,7 +110,6 @@ internal class PagedStorage<T : Any> :
     /**
      * @suppress
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun init(
         leadingNulls: Int,
         page: Page<*, T>,
@@ -209,7 +207,6 @@ internal class PagedStorage<T : Any> :
     /**
      * @suppress
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     interface Callback {
         fun onInitialized(count: Int)
         fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int)

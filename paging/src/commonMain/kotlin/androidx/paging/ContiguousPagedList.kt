@@ -16,9 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.AnyThread
-import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
@@ -33,7 +30,6 @@ import kotlinx.coroutines.launch
  * @suppress
  */
 @Suppress("DEPRECATION")
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public open class ContiguousPagedList<K : Any, V : Any>(
     final override val pagingSource: PagingSource<K, V>,
     coroutineScope: CoroutineScope,
@@ -203,7 +199,6 @@ public open class ContiguousPagedList<K : Any, V : Any>(
 
     // Creation thread for initial synchronous load, otherwise main thread
     // Safe to access main thread only state - no other thread has reference during construction
-    @AnyThread
     internal fun deferBoundaryCallbacks(
         deferEmpty: Boolean,
         deferBegin: Boolean,
@@ -335,7 +330,6 @@ public open class ContiguousPagedList<K : Any, V : Any>(
         pager.loadStateManager.setState(loadType, loadState)
     }
 
-    @MainThread
     override fun loadAroundInternal(index: Int) {
         val prependItems =
             getPrependItemsRequested(config.prefetchDistance, index, storage.placeholdersBefore)
@@ -371,7 +365,6 @@ public open class ContiguousPagedList<K : Any, V : Any>(
 
     override fun detach(): Unit = pager.detach()
 
-    @MainThread
     override fun onInitialized(count: Int) {
         notifyInserted(0, count)
         // Simple heuristic to decide if, when dropping pages, we should replace with placeholders.
@@ -382,7 +375,6 @@ public open class ContiguousPagedList<K : Any, V : Any>(
             storage.placeholdersAfter > 0
     }
 
-    @MainThread
     override fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int) {
         // finally dispatch callbacks, after prepend may have already been scheduled
         notifyChanged(leadingNulls, changed)
@@ -393,7 +385,6 @@ public open class ContiguousPagedList<K : Any, V : Any>(
         highestIndexAccessed += added
     }
 
-    @MainThread
     override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {
         // finally dispatch callbacks, after append may have already been scheduled
         notifyChanged(endPosition, changed)

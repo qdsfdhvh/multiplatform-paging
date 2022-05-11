@@ -16,8 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -35,9 +33,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import kotlin.jvm.Volatile
 
 /** @suppress */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
     private val mainContext: CoroutineContext = Dispatchers.Main
@@ -243,7 +241,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
-    public operator fun get(@IntRange(from = 0) index: Int): T? {
+    public operator fun get(index: Int): T? {
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
@@ -258,7 +256,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
-    public fun peek(@IntRange(from = 0) index: Int): T? {
+    public fun peek(index: Int): T? {
         return presenter.get(index)
     }
 
@@ -489,7 +487,6 @@ public abstract class PagingDataDiffer<T : Any>(
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DifferCallback {
     public fun onChanged(position: Int, count: Int)
     public fun onInserted(position: Int, count: Int)
@@ -503,7 +500,6 @@ public interface DifferCallback {
  * Sending these change payloads is critical for the common case where DefaultItemAnimator won't
  * animate them and re-use the same view holder if possible.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class DiffingChangePayload {
     ITEM_TO_PLACEHOLDER,
     PLACEHOLDER_TO_ITEM,

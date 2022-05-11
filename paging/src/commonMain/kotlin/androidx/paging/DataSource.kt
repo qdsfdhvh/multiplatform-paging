@@ -16,10 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.AnyThread
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.WorkerThread
-import androidx.arch.core.util.Function
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -105,14 +101,12 @@ internal constructor(internal val type: KeyType) {
     )
 
     internal val invalidateCallbackCount: Int
-        @VisibleForTesting
         get() = invalidateCallbackTracker.callbackCount()
 
     /**
      * @return `true` if the data source is invalid, and can no longer be queried for data.
      */
     public open val isInvalid: Boolean
-        @WorkerThread
         get() = invalidateCallbackTracker.invalid
 
     /**
@@ -350,7 +344,6 @@ internal constructor(internal val type: KeyType) {
          * data source to invalidate itself during its load methods, or for an outside source to
          * invalidate it.
          */
-        @AnyThread
         public fun onInvalidated()
     }
 
@@ -368,7 +361,6 @@ internal constructor(internal val type: KeyType) {
      * @param onInvalidatedCallback The callback, will be invoked on thread that invalidates the
      * [DataSource].
      */
-    @AnyThread
     @Suppress("RegistrationName")
     public open fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         invalidateCallbackTracker.registerInvalidatedCallback(onInvalidatedCallback)
@@ -379,7 +371,6 @@ internal constructor(internal val type: KeyType) {
      *
      * @param onInvalidatedCallback The previously added callback.
      */
-    @AnyThread
     @Suppress("RegistrationName")
     public open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         invalidateCallbackTracker.unregisterInvalidatedCallback(onInvalidatedCallback)
@@ -390,7 +381,6 @@ internal constructor(internal val type: KeyType) {
      *
      * If invalidate has already been called, this method does nothing.
      */
-    @AnyThread
     public open fun invalidate() {
         invalidateCallbackTracker.invalidate()
     }
