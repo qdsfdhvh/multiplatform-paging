@@ -21,12 +21,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.lang.ref.WeakReference
-import java.util.AbstractList
-import java.util.concurrent.Executor
+import androidx.paging.platform.WeakReference
+import androidx.paging.platform.ioDispatcher
 
 /**
  * Lazy loading list that pages in immutable content from a [PagingSource].
@@ -130,7 +129,7 @@ public abstract class PagedList<T : Any> internal constructor(
      * @return the Config of this PagedList
      */
     public val config: Config
-) : AbstractList<T>() {
+) : AbstractList<T?>() {
     /**
      * @suppress
      */
@@ -447,7 +446,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return The newly constructed [PagedList]
          */
         public fun build(): PagedList<Value> {
-            val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
+            val fetchDispatcher = fetchDispatcher ?: ioDispatcher
             val pagingSource = pagingSource ?: dataSource?.let { dataSource ->
                 LegacyPagingSource(
                     fetchDispatcher = fetchDispatcher,
@@ -886,7 +885,7 @@ public abstract class PagedList<T : Any> internal constructor(
     /**
      * @suppress
      */
-    public fun getNullPaddedList(): NullPaddedList<T> = storage
+    public fun getNullPaddedList(): NullPaddedList<T?> = storage
 
     internal var refreshRetryCallback: Runnable? = null
 
@@ -934,7 +933,7 @@ public abstract class PagedList<T : Any> internal constructor(
             }
             throw IllegalStateException(
                 "Attempt to access dataSource on a PagedList that was instantiated with a " +
-                    "${pagingSource::class.java.simpleName} instead of a DataSource"
+                        "${pagingSource::class.simpleName} instead of a DataSource"
             )
         }
 
@@ -1088,7 +1087,7 @@ public abstract class PagedList<T : Any> internal constructor(
      *
      * @return Immutable snapshot of [PagedList] data.
      */
-    public fun snapshot(): List<T> = when {
+    public fun snapshot(): List<T?> = when {
         isImmutable -> this
         else -> SnapshotPagedList(this)
     }

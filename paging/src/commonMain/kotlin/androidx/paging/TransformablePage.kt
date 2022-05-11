@@ -91,7 +91,6 @@ internal data class TransformablePage<T : Any>(
     // for IntArray.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
 
         other as TransformablePage<*>
 

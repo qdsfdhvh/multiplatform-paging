@@ -17,8 +17,12 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.platform.Function
+import androidx.paging.platform.defaultDispatcher
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmSynthetic
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 
 /**
  * Base class for loading pages of snapshot data into a [PagedList].
@@ -232,7 +236,7 @@ internal constructor(internal val type: KeyType) {
 
         @JvmOverloads
         public fun asPagingSourceFactory(
-            fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
+            fetchDispatcher: CoroutineDispatcher = defaultDispatcher
         ): () -> PagingSource<Key, Value> = SuspendingPagingSourceFactory(
             delegate = {
                 LegacyPagingSource(fetchDispatcher, create())

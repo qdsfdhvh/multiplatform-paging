@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.paging.PagingSource.LoadResult.Page
-import java.util.AbstractList
 
 /**
  * Class holding the pages of data backing a [PagedList], presenting sparse loaded data as a List.
@@ -26,9 +25,9 @@ import java.util.AbstractList
  * prefetching.
  */
 internal class PagedStorage<T : Any> :
-    AbstractList<T>,
+    AbstractList<T?>,
     LegacyPageFetcher.KeyProvider<Any>,
-    NullPaddedList<T> {
+    NullPaddedList<T?> {
     private val pages = mutableListOf<Page<*, T>>()
 
     internal val firstLoadedItem: T

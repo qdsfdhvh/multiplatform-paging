@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
@@ -75,7 +74,8 @@ internal class SingleRunner(
      * We use this special class so that we can still support regular cancelation coming from the
      * `block` but don't cancel its coroutine just to cancel the block.
      */
-    private class CancelIsolatedRunnerException(val runner: SingleRunner) : CancellationException()
+    private class CancelIsolatedRunnerException(val runner: SingleRunner) :
+        kotlin.coroutines.cancellation.CancellationException()
 
     private class Holder(
         private val singleRunner: SingleRunner,

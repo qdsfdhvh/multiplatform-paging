@@ -24,7 +24,7 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
-import java.util.concurrent.CopyOnWriteArrayList
+import androidx.paging.platform.CopyOnWriteArrayList
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST

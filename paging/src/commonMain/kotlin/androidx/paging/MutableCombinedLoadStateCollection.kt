@@ -19,10 +19,10 @@ package androidx.paging
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
+import androidx.paging.platform.CopyOnWriteArrayList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Helper to construct [CombinedLoadStates] that accounts for previous state to set the convenience

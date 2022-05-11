@@ -16,8 +16,9 @@
 
 package androidx.paging
 
-import androidx.arch.core.util.Function
-import java.util.IdentityHashMap
+import androidx.paging.platform.Function
+import androidx.paging.platform.IdentityHashMap
+import androidx.paging.platform.synchronized
 
 /**
  * @param Key DataSource key type, same for original and wrapped.
@@ -45,29 +46,15 @@ internal open class WrapperDataSource<Key : Any, ValueFrom : Any, ValueTo : Any>
         get() = source.isInvalid
 
     override fun getKeyInternal(item: ValueTo): Key = when {
-        keyMap != null -> synchronized(keyMap) {
+        keyMap != null -> synchronized(keyMap.lockObject) {
             return keyMap[item]!!
         }
         // positional / page-keyed
         else -> throw IllegalStateException("Cannot get key by item in non-item keyed DataSource")
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    fun stashKeysIfNeeded(source: List<ValueFrom>, dest: List<ValueTo>) {
-        if (keyMap != null) {
-            synchronized(keyMap) {
-                for (i in dest.indices) {
-                    @Suppress("DEPRECATION")
-                    keyMap[dest[i]] = (this.source as ItemKeyedDataSource).getKey(source[i])
-                }
-            }
-        }
-    }
-
     override suspend fun load(params: Params<Key>): BaseResult<ValueTo> {
         val input = source.load(params)
-        val result = BaseResult.convert(input, listFunction)
-        stashKeysIfNeeded(input.data, result.data)
-        return result
+        return BaseResult.convert(input, listFunction)
     }
 }
