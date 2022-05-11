@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import kotlin.jvm.JvmSynthetic
+
 /**
  * Constructs a [PagedList.Config], convenience for [PagedList.Config.Builder].
  *
