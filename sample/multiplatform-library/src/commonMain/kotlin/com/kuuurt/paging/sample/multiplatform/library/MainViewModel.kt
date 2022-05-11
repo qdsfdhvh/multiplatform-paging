@@ -1,9 +1,10 @@
 package com.kuuurt.paging.sample.multiplatform.library
 
-import com.kuuurt.paging.multiplatform.Pager
-import com.kuuurt.paging.multiplatform.PagingConfig
-import com.kuuurt.paging.multiplatform.PagingResult
-import com.kuuurt.paging.multiplatform.helpers.cachedIn
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.cachedIn
 import com.kuuurt.paging.sample.multiplatform.library.helpers.asCommonFlow
 import com.kuuurt.paging.sample.multiplatform.library.utils.BaseViewModel
 import kotlinx.coroutines.flow.Flow
@@ -21,21 +22,26 @@ class MainViewModel : BaseViewModel() {
     private val pageSize = 15
 
     val pager = Pager(
-        clientScope,
         config = PagingConfig(
             pageSize = pageSize,
             enablePlaceholders = false,
-            initialLoadSize = pageSize
+            initialLoadSize = pageSize,
         ),
         initialKey = 1,
-        getItems = { currentKey, size ->
-            val items = fakeData.getData(currentKey, size)
-            PagingResult(
-                items = items,
-                currentKey = currentKey,
-                prevKey = { currentKey - pageSize - 1 },
-                nextKey = { currentKey + pageSize + 1 }
-            )
+        pagingSourceFactory = {
+            object : PagingSource<Int, String>() {
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                    val page = params.key ?: 1
+                    val items = fakeData.getData(page, pageSize)
+                    return LoadResult.Page(
+                        items,
+                        prevKey = if (page < 0) null else page - 1,
+                        nextKey = if (items.isEmpty()) null else page + 1,
+                    )
+                }
+
+                override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
+            }
         }
     )
 
@@ -43,10 +49,7 @@ class MainViewModel : BaseViewModel() {
     private val removedItemsFlow: Flow<MutableList<String>> get() = _removedItemsFlow
 
     val pagingData
-        get() = pager.pagingData
-//            .combine(removedItemsFlow) { pagingData, removed ->
-//                pagingData.filter { it !in removed }
-//            }
+        get() = pager.flow
             .cachedIn(clientScope)
             .asCommonFlow()
 

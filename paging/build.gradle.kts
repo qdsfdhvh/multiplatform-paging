@@ -60,12 +60,7 @@ kotlin {
         }
     }
 
-    val jvmMain by sourceSets.getting {
-        dependencies {
-            api("androidx.paging:paging-common-ktx:3.1.0")
-        }
-    }
-
+    val jvmMain by sourceSets.getting
     val iosMain by sourceSets.getting
     val iosTest by sourceSets.getting
     val iosSimulatorArm64Main by sourceSets.getting

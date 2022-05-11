@@ -57,7 +57,8 @@ kotlin {
 
     val commonMain by sourceSets.getting {
         dependencies {
-            api("io.github.kuuuurt:multiplatform-paging:$MP_PAGING_VERSION")
+            // api("io.github.kuuuurt:multiplatform-paging:$MP_PAGING_VERSION")
+            api(project(":paging"))
             implementation("io.ktor:ktor-client-core:1.6.7")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$COROUTINES_VERSION") {
                 version {
@@ -69,7 +70,7 @@ kotlin {
 
     val androidMain by sourceSets.getting {
         dependencies {
-            implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1")
         }
     }
 
