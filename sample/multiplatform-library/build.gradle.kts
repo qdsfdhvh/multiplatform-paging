@@ -51,7 +51,7 @@ kotlin {
 
         framework {
             baseName = iosFrameworkName
-            export("io.github.kuuuurt:multiplatform-paging:$MP_PAGING_VERSION")
+            export(project(":paging"))
         }
     }
 
