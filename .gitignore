@@ -104,3 +104,5 @@ true
 2F043FD5.gpg
 sonatype.properties
 bintray.properties
+secring.gpg
+publish.properties

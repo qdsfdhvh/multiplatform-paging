@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import androidx.paging.platform.WeakReference
 import androidx.paging.platform.ioDispatcher
 
@@ -153,7 +152,7 @@ public abstract class PagedList<T : Any> internal constructor(
          *
          * @suppress
          */
-        public fun <K : Any, T : Any> create(
+        public suspend fun <K : Any, T : Any> create(
             pagingSource: PagingSource<K, T>,
             initialPage: PagingSource.LoadResult.Page<K, T>?,
             coroutineScope: CoroutineScope,
@@ -172,21 +171,18 @@ public abstract class PagedList<T : Any> internal constructor(
                         config.initialLoadSizeHint,
                         config.enablePlaceholders,
                     )
-                    runBlocking {
-                        val initialResult = pagingSource.load(params)
-                        when (initialResult) {
-                            is PagingSource.LoadResult.Page -> initialResult
-                            is PagingSource.LoadResult.Error -> throw initialResult.throwable
-                            is PagingSource.LoadResult.Invalid ->
-                                throw IllegalStateException(
-                                    "Failed to create PagedList. The provided PagingSource " +
-                                        "returned LoadResult.Invalid, but a LoadResult.Page was " +
-                                        "expected. To use a PagingSource which supports " +
-                                        "invalidation, use a PagedList builder that accepts a " +
-                                        "factory method for PagingSource or DataSource.Factory, " +
-                                        "such as LivePagedList."
-                                )
-                        }
+                    when (val initialResult = pagingSource.load(params)) {
+                        is PagingSource.LoadResult.Page -> initialResult
+                        is PagingSource.LoadResult.Error -> throw initialResult.throwable
+                        is PagingSource.LoadResult.Invalid ->
+                            throw IllegalStateException(
+                                "Failed to create PagedList. The provided PagingSource " +
+                                    "returned LoadResult.Invalid, but a LoadResult.Page was " +
+                                    "expected. To use a PagingSource which supports " +
+                                    "invalidation, use a PagedList builder that accepts a " +
+                                    "factory method for PagingSource or DataSource.Factory, " +
+                                    "such as LivePagedList."
+                            )
                     }
                 }
                 else -> initialPage
@@ -445,7 +441,7 @@ public abstract class PagedList<T : Any> internal constructor(
          *
          * @return The newly constructed [PagedList]
          */
-        public fun build(): PagedList<Value> {
+        public suspend fun build(): PagedList<Value> {
             val fetchDispatcher = fetchDispatcher ?: ioDispatcher
             val pagingSource = pagingSource ?: dataSource?.let { dataSource ->
                 LegacyPagingSource(
@@ -1226,7 +1222,7 @@ public abstract class PagedList<T : Any> internal constructor(
     "DEPRECATION"
 )
 @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
-public fun <Key : Any, Value : Any> PagedList(
+public suspend fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,
     config: PagedList.Config,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,

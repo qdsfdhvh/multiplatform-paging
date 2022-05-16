@@ -75,7 +75,7 @@ internal class SingleRunner(
      * `block` but don't cancel its coroutine just to cancel the block.
      */
     private class CancelIsolatedRunnerException(val runner: SingleRunner) :
-        kotlin.coroutines.cancellation.CancellationException()
+        kotlinx.coroutines.CancellationException(null)
 
     private class Holder(
         private val singleRunner: SingleRunner,

@@ -1,6 +1,3 @@
-import org.gradle.api.publish.maven.internal.artifact.FileBasedMavenArtifact
-import java.net.URI
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -9,42 +6,8 @@ plugins {
     id("signing")
 }
 
-val MP_PAGING_VERSION: String by rootProject.extra
-
-val sonatypePropertiesFile = project.rootProject.file("sonatype.properties")
-val sonatypeProperties = Properties()
-if (sonatypePropertiesFile.exists()) {
-    sonatypeProperties.load(FileInputStream(sonatypePropertiesFile))
-
-    rootProject.extra["signing.keyId"] = sonatypeProperties.getProperty("signing.key_id")
-    rootProject.extra["signing.password"] = sonatypeProperties.getProperty("signing.password")
-    rootProject.extra["signing.secretKeyRingFile"] = sonatypeProperties.getProperty("signing.secret_key_ring_file")
-}
-
-val artifactName = "multiplatform-paging"
-val artifactGroup = "io.github.kuuuurt"
-val artifactVersion = MP_PAGING_VERSION
-
-val pomUrl = "https://github.com/kuuuurt/multiplatform-paging"
-val pomScmUrl = "https://github.com/kuuuurt/multiplatform-paging.git"
-val pomIssueUrl = "https://github.com/kuuuurt/multiplatform-paging/issues"
-val pomDesc = "A Kotlin Multiplatform library for pagination on Android and iOS"
-
-val githubRepo = "kuuuurt/multiplatform-paging"
-val githubReadme = "README.md"
-
-val pomLicenseName = "Apache-2.0"
-val pomLicenseUrl = "https://www.apache.org/licenses/LICENSE-2.0"
-val pomLicenseDist = "repo"
-
-val pomDeveloperId = "kuuuurt"
-val pomDeveloperName = "Kurt Renzo Acosta"
-val pomDeveloperEmail = "kurt.r.acosta@gmail.com"
-
-val frameworkName = "MultiplatformPaging"
-
-group = artifactGroup
-version = artifactVersion
+group = "io.github.qdsfdhvh"
+version = "1.0.0"
 
 val COROUTINES_VERSION: String by rootProject.extra
 
@@ -71,22 +34,20 @@ kotlin {
     iosSimulatorArm64Test.dependsOn(iosTest)
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "mavenCentral"
-            url = URI("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = sonatypeProperties.getProperty("ossrh.username")
-                password = sonatypeProperties.getProperty("ossrh.password")
-            }
+ext {
+    val publishPropFile = rootProject.file("publish.properties")
+    if (publishPropFile.exists()) {
+        Properties().apply {
+            load(publishPropFile.inputStream())
+        }.forEach { name, value ->
+            set(name.toString(), value)
         }
-    }
-}
-
-signing {
-    if (sonatypePropertiesFile.exists()) {
-        sign(publishing.publications)
+    } else {
+        set("signing.keyId", System.getenv("SIGNING_KEY_ID"))
+        set("signing.password", System.getenv("SIGNING_PASSWORD"))
+        set("signing.secretKeyRingFile", System.getenv("SIGNING_SECRET_KEY_RING_FILE"))
+        set("ossrhUsername", System.getenv("OSSRH_USERNAME"))
+        set("ossrhPassword", System.getenv("OSSRH_PASSWORD"))
     }
 }
 
@@ -94,36 +55,49 @@ val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
 }
 
-afterEvaluate {
-    project.publishing.publications.withType<MavenPublication>().all {
-        groupId = artifactGroup
-        artifactId = if (name.contains("kotlinMultiplatform")) {
-            artifactName
-        } else {
-            "$artifactName-$name"
+publishing {
+    signing {
+        sign(publishing.publications)
+    }
+    repositories {
+        maven {
+            val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = if (version.toString().endsWith("SNAPSHOT")) {
+                uri(snapshotsRepoUrl)
+            } else {
+                uri(releasesRepoUrl)
+            }
+            credentials {
+                username = project.ext.get("ossrhUsername").toString()
+                password = project.ext.get("ossrhPassword").toString()
+            }
         }
-
-        // Stub javadoc.jar artifact
+    }
+    publications.withType<MavenPublication> {
         artifact(javadocJar.get())
+        pom {
+            name.set("Multiplatform Paging")
+            description.set("Jetpack Paging3 for Kotlin Multiplatform.")
+            url.set("https://github.com/qdsfdhvh/multiplatform-paging")
 
-        pom.withXml {
-            asNode().apply {
-                appendNode("description", pomDesc)
-                appendNode("name", rootProject.name)
-                appendNode("url", pomUrl)
-                appendNode("licenses").appendNode("license").apply {
-                    appendNode("name", pomLicenseName)
-                    appendNode("url", pomLicenseUrl)
-                    appendNode("distribution", pomLicenseDist)
+            licenses {
+                license {
+                    name.set("MIT")
+                    url.set("https://opensource.org/licenses/MIT")
                 }
-                appendNode("developers").appendNode("developer").apply {
-                    appendNode("id", pomDeveloperId)
-                    appendNode("name", pomDeveloperName)
-                    appendNode("email", pomDeveloperName)
+            }
+            developers {
+                developer {
+                    id.set("Seiko")
+                    name.set("SeikoDes")
+                    email.set("seiko_des@outlook.com")
                 }
-                appendNode("scm").apply {
-                    appendNode("url", pomScmUrl)
-                }
+            }
+            scm {
+                url.set("https://github.com/qdsfdhvh/multiplatform-paging")
+                connection.set("scm:git:git://github.com/qdsfdhvh/multiplatform-paging.git")
+                developerConnection.set("scm:git:git://github.com/qdsfdhvh/multiplatform-paging.git")
             }
         }
     }
