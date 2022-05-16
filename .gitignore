@@ -45,6 +45,7 @@ captures/
 .idea/assetWizardSettings.xml
 .idea/dictionaries
 .idea/libraries
+.idea/
 
 # IntelliJ (Annoying)
 .idea/*.xml
@@ -106,3 +107,8 @@ sonatype.properties
 bintray.properties
 secring.gpg
 publish.properties
+
+# ios
+sample/ios/Pods/Pods.xcodeproj/xcuserdata/
+sample/ios/Sample.xcodeproj/xcuserdata/
+sample/ios/Sample.xcworkspace/xcuserdata/
