@@ -7,15 +7,14 @@ plugins {
 }
 
 group = "io.github.qdsfdhvh"
-version = "1.0.0"
+version = "1.0.1"
 
 val COROUTINES_VERSION: String by rootProject.extra
 
 kotlin {
+    jvm()
     ios()
     iosSimulatorArm64()
-
-    jvm { compilations.all { kotlinOptions.jvmTarget = "11" } }
 
     val commonMain by sourceSets.getting {
         dependencies {
