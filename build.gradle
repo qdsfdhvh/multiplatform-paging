@@ -2,8 +2,8 @@
 
 buildscript {
     ext {
-        KOTLIN_VERSION = "1.6.10"
-        COROUTINES_VERSION = "1.6.0-native-mt"
+        KOTLIN_VERSION = "1.6.21"
+        COROUTINES_VERSION = "1.6.1"
         MP_PAGING_VERSION = "0.4.7"
     }
     repositories {

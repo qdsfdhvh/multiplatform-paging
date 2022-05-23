@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.qdsfdhvh"
-version = "1.0.1"
+version = "1.0.2"
 
 val COROUTINES_VERSION: String by rootProject.extra
 
@@ -31,6 +31,16 @@ kotlin {
     // Set up dependencies between the source sets
     iosSimulatorArm64Main.dependsOn(iosMain)
     iosSimulatorArm64Test.dependsOn(iosTest)
+
+    targets.all {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs = freeCompilerArgs + listOf(
+                    "-opt-in=kotlin.RequiresOptIn",
+                )
+            }
+        }
+    }
 }
 
 ext {
