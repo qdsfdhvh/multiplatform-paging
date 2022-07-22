@@ -103,7 +103,8 @@ internal sealed class ViewportHint(
             |    presentedItemsAfter=$presentedItemsAfter,
             |    originalPageOffsetFirst=$originalPageOffsetFirst,
             |    originalPageOffsetLast=$originalPageOffsetLast,
-            |)""".trimMargin()
+            |)
+            """.trimMargin()
         }
     }
 
@@ -160,7 +161,8 @@ internal sealed class ViewportHint(
             |    presentedItemsAfter=$presentedItemsAfter,
             |    originalPageOffsetFirst=$originalPageOffsetFirst,
             |    originalPageOffsetLast=$originalPageOffsetLast,
-            |)""".trimMargin()
+            |)
+            """.trimMargin()
         }
     }
 }

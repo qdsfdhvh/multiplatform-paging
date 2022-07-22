@@ -19,10 +19,10 @@ package androidx.paging
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.platform.Function
 import androidx.paging.platform.defaultDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
-import kotlinx.coroutines.CoroutineDispatcher
 
 /**
  * Base class for loading pages of snapshot data into a [PagedList].

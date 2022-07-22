@@ -25,7 +25,6 @@ import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
 import androidx.paging.platform.CopyOnWriteArrayList
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +32,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.Volatile
 
 /** @suppress */
@@ -444,7 +444,8 @@ public abstract class PagingDataDiffer<T : Any>(
             """Missing call to onListPresentable after new list was presented. If you are seeing
                 | this exception, it is generally an indication of an issue with Paging.
                 | Please file a bug so we can fix it at:
-                | $BUGANIZER_URL""".trimMargin()
+                | $BUGANIZER_URL
+            """.trimMargin()
         }
 
         // We may want to skip dispatching load states if triggered by a static list which wants to

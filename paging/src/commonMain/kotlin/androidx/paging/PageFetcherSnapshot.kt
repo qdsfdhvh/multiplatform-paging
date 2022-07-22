@@ -423,7 +423,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             | sequential Pages loaded from a PagingSource. Re-using load keys in
                             | PagingSource is often an error, and must be explicitly enabled by
                             | overriding PagingSource.keyReuseSupported.
-                            """.trimMargin()
+                        """.trimMargin()
                     }
 
                     val insertApplied = stateHolder.withLock { state ->

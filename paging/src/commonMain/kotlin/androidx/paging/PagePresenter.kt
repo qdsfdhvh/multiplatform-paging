@@ -118,7 +118,8 @@ internal class PagePresenter<T : Any>(
                 """Paging received an event to display a static list, while still actively loading
                 |from an existing generation of PagingData. If you see this exception, it is most
                 |likely a bug in the library. Please file a bug so we can fix it at:
-                |$BUGANIZER_URL""".trimMargin()
+                |$BUGANIZER_URL
+                """.trimMargin()
             )
         }
     }
@@ -177,7 +178,8 @@ internal class PagePresenter<T : Any>(
                 """Paging received a refresh event in the middle of an actively loading generation
                 |of PagingData. If you see this exception, it is most likely a bug in the library.
                 |Please file a bug so we can fix it at:
-                |$BUGANIZER_URL""".trimMargin()
+                |$BUGANIZER_URL
+                """.trimMargin()
             )
             PREPEND -> {
                 val placeholdersChangedCount = minOf(placeholdersBefore, count)

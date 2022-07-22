@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import androidx.paging.platform.WeakReference
+import androidx.paging.platform.ioDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -23,8 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
-import androidx.paging.platform.WeakReference
-import androidx.paging.platform.ioDispatcher
 
 /**
  * Lazy loading list that pages in immutable content from a [PagingSource].
@@ -929,7 +929,7 @@ public abstract class PagedList<T : Any> internal constructor(
             }
             throw IllegalStateException(
                 "Attempt to access dataSource on a PagedList that was instantiated with a " +
-                        "${pagingSource::class.simpleName} instead of a DataSource"
+                    "${pagingSource::class.simpleName} instead of a DataSource"
             )
         }
 

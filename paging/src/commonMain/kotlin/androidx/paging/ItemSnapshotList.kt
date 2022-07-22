@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-
 /**
  * Snapshot of data being presented by a
  * [AsyncPagingDataDiffer][androidx.pagingAsyncPagingDataDiffer] or a
