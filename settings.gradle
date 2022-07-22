@@ -1,5 +1,0 @@
-rootProject.name='Multiplatform Paging'
-include ':paging'
-include ':sample:android'
-include ':sample:MultiplatformPagingLibrary'
-project(":sample:MultiplatformPagingLibrary").projectDir = file("sample/multiplatform-library")
