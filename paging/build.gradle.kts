@@ -1,7 +1,8 @@
 import java.util.Properties
 
 plugins {
-    id("org.jetbrains.kotlin.multiplatform")
+    kotlin("multiplatform")
+    id("com.android.library")
     id("maven-publish")
     id("signing")
 }
@@ -9,37 +10,57 @@ plugins {
 group = "io.github.qdsfdhvh"
 version = "1.0.2"
 
-val COROUTINES_VERSION: String by rootProject.extra
-
 kotlin {
-    jvm()
-    ios()
-    iosSimulatorArm64()
-
-    val commonMain by sourceSets.getting {
-        dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$COROUTINES_VERSION")
-        }
+    android {
+        publishLibraryVariants("debug", "release")
     }
+    jvm()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    macosX64()
+    macosArm64()
 
-    val jvmMain by sourceSets.getting
-    val iosMain by sourceSets.getting
-    val iosTest by sourceSets.getting
-    val iosSimulatorArm64Main by sourceSets.getting
-    val iosSimulatorArm64Test by sourceSets.getting
-
-    // Set up dependencies between the source sets
-    iosSimulatorArm64Main.dependsOn(iosMain)
-    iosSimulatorArm64Test.dependsOn(iosTest)
-
-    targets.all {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-opt-in=kotlin.RequiresOptIn",
-                )
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
             }
         }
+        val jvmMain by getting
+        val androidMain by getting {
+            dependsOn(jvmMain)
+        }
+        val appleMain by creating
+        val iosX64Main by getting {
+            dependsOn(appleMain)
+        }
+        val iosArm64Main by getting {
+            dependsOn(appleMain)
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(appleMain)
+        }
+        val macosX64Main by getting {
+            dependsOn(appleMain)
+        }
+        val macosArm64Main by getting {
+            dependsOn(appleMain)
+        }
+    }
+}
+
+android {
+    namespace = "io.github.qdsfdhvh.paging"
+    compileSdk = Versions.Android.compile
+    buildToolsVersion = Versions.Android.buildTools
+    defaultConfig {
+        minSdk = Versions.Android.min
+        targetSdk = Versions.Android.target
+    }
+    compileOptions {
+        sourceCompatibility = Versions.Java.java
+        targetCompatibility = Versions.Java.java
     }
 }
 
