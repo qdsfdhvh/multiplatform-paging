@@ -6,7 +6,7 @@ plugins {
     id("com.android.library").apply(false)
     kotlin("android").apply(false)
     id("com.diffplug.spotless").version(Versions.spotless)
-    id("com.vanniktech.maven.publish").version("0.20.0").apply(false)
+    id("com.vanniktech.maven.publish").version("0.25.2").apply(false)
 }
 
 allprojects {
