@@ -33,7 +33,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     private val initialKey: Key?,
     private val config: PagingConfig,
     @OptIn(ExperimentalPagingApi::class)
-    remoteMediator: RemoteMediator<Key, Value>? = null
+    remoteMediator: RemoteMediator<Key, Value>? = null,
 ) {
     /**
      * Channel of refresh signals that would trigger a new instance of [PageFetcherSnapshot].
@@ -62,7 +62,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
             .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
-                triggerRemoteRefresh: Boolean ->
+                    triggerRemoteRefresh: Boolean, ->
                 // Enable refresh if this is the first generation and we have LAUNCH_INITIAL_REFRESH
                 // or if this generation was started due to [refresh] being invoked.
                 if (triggerRemoteRefresh) {
@@ -70,7 +70,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 }
 
                 val pagingSource = generateNewPagingSource(
-                    previousPagingSource = previousGeneration?.snapshot?.pagingSource
+                    previousPagingSource = previousGeneration?.snapshot?.pagingSource,
                 )
 
                 var previousPagingState = previousGeneration?.snapshot?.currentPagingState()
@@ -125,7 +125,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
                 PagingData(
                     flow = downstreamFlow,
-                    receiver = PagerUiReceiver(generation.snapshot, retryEvents)
+                    receiver = PagerUiReceiver(generation.snapshot, retryEvents),
                 )
             }
             .collect(::send)
@@ -141,7 +141,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
         job: Job,
-        accessor: RemoteMediatorAccessor<Key, Value>?
+        accessor: RemoteMediatorAccessor<Key, Value>?,
     ): Flow<PageEvent<Value>> {
         if (accessor == null) return pageEventFlow
 
@@ -166,7 +166,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                             is Drop -> {
                                 sourceStates.set(
                                     type = sourceEvent.loadType,
-                                    state = LoadState.NotLoading.Incomplete
+                                    state = LoadState.NotLoading.Incomplete,
                                 )
                                 sourceEvent
                             }
@@ -178,14 +178,13 @@ internal class PageFetcher<Key : Any, Value : Any>(
                                 )
                             }
                             is PageEvent.StaticList -> {
-
                                 throw IllegalStateException(
                                     """Paging generated an event to display a static list that
                                         | originated from a paginated source. If you see this
                                         | exception, it is most likely a bug in the library.
                                         | Please file a bug so we can fix it at:
                                         | $BUGANIZER_URL"""
-                                        .trimMargin()
+                                        .trimMargin(),
                                 )
                             }
                         }
@@ -201,7 +200,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     private suspend fun generateNewPagingSource(
-        previousPagingSource: PagingSource<Key, Value>?
+        previousPagingSource: PagingSource<Key, Value>?,
     ): PagingSource<Key, Value> {
         val pagingSource = pagingSourceFactory()
         if (pagingSource is LegacyPagingSource) {
@@ -226,7 +225,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
         internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
-        private val retryEventBus: ConflatedEventBus<Unit>
+        private val retryEventBus: ConflatedEventBus<Unit>,
     ) : UiReceiver {
         override fun accessHint(viewportHint: ViewportHint) {
             pageFetcherSnapshot.accessHint(viewportHint)

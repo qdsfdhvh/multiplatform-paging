@@ -34,7 +34,7 @@ package androidx.paging
  * @see LoadType
  */
 public sealed class LoadState(
-    public val endOfPaginationReached: Boolean
+    public val endOfPaginationReached: Boolean,
 ) {
     /**
      * Indicates the [PagingData] is not currently loading, and no error currently observed.
@@ -45,7 +45,7 @@ public sealed class LoadState(
      * halt as the end of the dataset has been reached.
      */
     public class NotLoading(
-        endOfPaginationReached: Boolean
+        endOfPaginationReached: Boolean,
     ) : LoadState(endOfPaginationReached) {
         override fun toString(): String {
             return "NotLoading(endOfPaginationReached=$endOfPaginationReached)"
@@ -92,7 +92,7 @@ public sealed class LoadState(
      * @see androidx.paging.PagedList.retry
      */
     public class Error(
-        public val error: Throwable
+        public val error: Throwable,
     ) : LoadState(false) {
         override fun equals(other: Any?): Boolean {
             return other is Error &&

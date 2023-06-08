@@ -39,7 +39,7 @@ import kotlin.coroutines.resume
  * produced.
  */
 internal fun <T> simpleChannelFlow(
-    block: suspend SimpleProducerScope<T>.() -> Unit
+    block: suspend SimpleProducerScope<T>.() -> Unit,
 ): Flow<T> {
     return flow {
         coroutineScope {

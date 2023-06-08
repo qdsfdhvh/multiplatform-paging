@@ -31,12 +31,12 @@ import kotlinx.coroutines.launch
  */
 internal interface RemoteMediatorConnection<Key : Any, Value : Any> {
     fun requestRefreshIfAllowed(
-        pagingState: PagingState<Key, Value>
+        pagingState: PagingState<Key, Value>,
     )
 
     fun requestLoad(
         loadType: LoadType,
-        pagingState: PagingState<Key, Value>
+        pagingState: PagingState<Key, Value>,
     )
 
     fun retryFailed(pagingState: PagingState<Key, Value>)
@@ -59,7 +59,7 @@ internal interface RemoteMediatorAccessor<Key : Any, Value : Any> :
 @OptIn(ExperimentalPagingApi::class)
 internal fun <Key : Any, Value : Any> RemoteMediatorAccessor(
     scope: CoroutineScope,
-    delegate: RemoteMediator<Key, Value>
+    delegate: RemoteMediator<Key, Value>,
 ): RemoteMediatorAccessor<Key, Value> = RemoteMediatorAccessImpl(scope, delegate)
 
 /**
@@ -123,7 +123,7 @@ private class AccessorState<Key : Any, Value : Any> {
         return LoadStates(
             refresh = computeLoadTypeState(LoadType.REFRESH),
             append = computeLoadTypeState(LoadType.APPEND),
-            prepend = computeLoadTypeState(LoadType.PREPEND)
+            prepend = computeLoadTypeState(LoadType.PREPEND),
         )
     }
 
@@ -167,7 +167,7 @@ private class AccessorState<Key : Any, Value : Any> {
      */
     fun add(
         loadType: LoadType,
-        pagingState: PagingState<Key, Value>
+        pagingState: PagingState<Key, Value>,
     ): Boolean {
         val existing = pendingRequests.firstOrNull {
             it.loadType == loadType
@@ -249,20 +249,20 @@ private class AccessorState<Key : Any, Value : Any> {
 
     class PendingRequest<Key : Any, Value : Any>(
         val loadType: LoadType,
-        var pagingState: PagingState<Key, Value>
+        var pagingState: PagingState<Key, Value>,
     )
 
     enum class BlockState {
         UNBLOCKED,
         COMPLETED,
-        REQUIRES_REFRESH
+        REQUIRES_REFRESH,
     }
 }
 
 @OptIn(ExperimentalPagingApi::class)
 private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private val scope: CoroutineScope,
-    private val remoteMediator: RemoteMediator<Key, Value>
+    private val remoteMediator: RemoteMediator<Key, Value>,
 ) : RemoteMediatorAccessor<Key, Value> {
     // all internal state is kept in accessorState to avoid concurrent access
     private val accessorState = AccessorStateHolder<Key, Value>()
@@ -311,7 +311,7 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
         scope.launch {
             var launchAppendPrepend = false
             isolationRunner.runInIsolation(
-                priority = PRIORITY_REFRESH
+                priority = PRIORITY_REFRESH,
             ) {
                 val pendingPagingState = accessorState.use {
                     it.getPendingRefresh()
@@ -383,7 +383,7 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private fun launchBoundary() {
         scope.launch {
             isolationRunner.runInIsolation(
-                priority = PRIORITY_APPEND_PREPEND
+                priority = PRIORITY_APPEND_PREPEND,
             ) {
                 while (true) {
                     val (loadType, pendingPagingState) = accessorState.use {

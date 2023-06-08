@@ -30,7 +30,7 @@ import androidx.paging.platform.CopyOnWriteArrayList
  * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
  */
 public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
-    private val pagingSourceFactory: () -> PagingSource<Key, Value>
+    private val pagingSourceFactory: () -> PagingSource<Key, Value>,
 ) : () -> PagingSource<Key, Value> {
 
     internal val pagingSources = CopyOnWriteArrayList<PagingSource<Key, Value>>()

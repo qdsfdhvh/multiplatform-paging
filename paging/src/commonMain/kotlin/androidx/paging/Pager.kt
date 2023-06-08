@@ -44,7 +44,7 @@ public class Pager<Key : Any, Value : Any>
     config: PagingConfig,
     initialKey: Key? = null,
     remoteMediator: RemoteMediator<Key, Value>?,
-    pagingSourceFactory: () -> PagingSource<Key, Value>
+    pagingSourceFactory: () -> PagingSource<Key, Value>,
 ) {
     // Experimental usage is internal, so opt-in is allowed here.
     @JvmOverloads
@@ -52,7 +52,7 @@ public class Pager<Key : Any, Value : Any>
     public constructor(
         config: PagingConfig,
         initialKey: Key? = null,
-        pagingSourceFactory: () -> PagingSource<Key, Value>
+        pagingSourceFactory: () -> PagingSource<Key, Value>,
     ) : this(config, initialKey, null, pagingSourceFactory)
 
     /**
@@ -85,6 +85,6 @@ public class Pager<Key : Any, Value : Any>
         },
         initialKey = initialKey,
         config = config,
-        remoteMediator = remoteMediator
+        remoteMediator = remoteMediator,
     ).flow
 }

@@ -129,21 +129,21 @@ public class PagingConfig @JvmOverloads public constructor(
      * @see PagingSource.jumpingSupported
      */
     @JvmField
-    public val jumpThreshold: Int = COUNT_UNDEFINED
+    public val jumpThreshold: Int = COUNT_UNDEFINED,
 ) {
     init {
         if (!enablePlaceholders && prefetchDistance == 0) {
             throw IllegalArgumentException(
                 "Placeholders and prefetch are the only ways" +
                     " to trigger loading of more data in PagingData, so either placeholders" +
-                    " must be enabled, or prefetch distance must be > 0."
+                    " must be enabled, or prefetch distance must be > 0.",
             )
         }
         if (maxSize != MAX_SIZE_UNBOUNDED && maxSize < pageSize + prefetchDistance * 2) {
             throw IllegalArgumentException(
                 "Maximum size must be at least pageSize + 2*prefetchDist" +
                     ", pageSize=$pageSize, prefetchDist=$prefetchDistance" +
-                    ", maxSize=$maxSize"
+                    ", maxSize=$maxSize",
             )
         }
 

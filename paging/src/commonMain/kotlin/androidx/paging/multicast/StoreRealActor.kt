@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.onEach
  * It also enforces a 0 capacity buffer.
  */
 internal abstract class StoreRealActor<T>(
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ) {
     private val inboundChannel = Channel<Any?>(capacity = Channel.RENDEZVOUS)
     private val closeCompleted = CompletableDeferred<Unit>()

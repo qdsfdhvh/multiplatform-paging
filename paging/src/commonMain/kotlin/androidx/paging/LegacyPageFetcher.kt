@@ -32,7 +32,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher,
     val pageConsumer: PageConsumer<V>,
-    private val keyProvider: KeyProvider<K>
+    private val keyProvider: KeyProvider<K>,
 ) {
     private val detached = AtomicBoolean(false)
 
@@ -81,7 +81,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         } else {
             loadStateManager.setState(
                 type,
-                if (value.data.isEmpty()) NotLoading.Complete else NotLoading.Incomplete
+                if (value.data.isEmpty()) NotLoading.Complete else NotLoading.Incomplete,
             )
         }
     }

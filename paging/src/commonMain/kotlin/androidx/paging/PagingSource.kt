@@ -21,7 +21,7 @@ import androidx.paging.LoadType.REFRESH
 /** @suppress */
 @Suppress("DEPRECATION")
 public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
-    key: Key?
+    key: Key?,
 ): PagingSource.LoadParams<Key> = PagingSource.LoadParams.Refresh(
     key,
     initialLoadSizeHint,
@@ -77,7 +77,7 @@ public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
 public abstract class PagingSource<Key : Any, Value : Any> {
 
     private val invalidateCallbackTracker = InvalidateCallbackTracker<() -> Unit>(
-        callbackInvoker = { it() }
+        callbackInvoker = { it() },
     )
 
     internal val invalidateCallbackCount: Int
@@ -201,7 +201,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * @sample androidx.paging.samples.pageKeyedPagingSourceSample
          */
         public data class Error<Key : Any, Value : Any>(
-            val throwable: Throwable
+            val throwable: Throwable,
         ) : LoadResult<Key, Value>()
 
         /**
@@ -249,7 +249,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
             /**
              * Optional count of items after the loaded data.
              */
-            val itemsAfter: Int = COUNT_UNDEFINED
+            val itemsAfter: Int = COUNT_UNDEFINED,
         ) : LoadResult<Key, Value>() {
 
             /**
@@ -264,7 +264,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
             public constructor(
                 data: List<Value>,
                 prevKey: Key?,
-                nextKey: Key?
+                nextKey: Key?,
             ) : this(data, prevKey, nextKey, COUNT_UNDEFINED, COUNT_UNDEFINED)
 
             init {

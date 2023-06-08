@@ -21,7 +21,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
             }
         }
         val jvmMain by getting
@@ -52,10 +52,8 @@ kotlin {
 android {
     namespace = "io.github.qdsfdhvh.paging"
     compileSdk = Versions.Android.compile
-    buildToolsVersion = Versions.Android.buildTools
     defaultConfig {
         minSdk = Versions.Android.min
-        targetSdk = Versions.Android.target
     }
     compileOptions {
         sourceCompatibility = Versions.Java.java

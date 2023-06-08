@@ -53,15 +53,15 @@ internal class HintHandler {
      */
     fun forceSetHint(
         loadType: LoadType,
-        viewportHint: ViewportHint
+        viewportHint: ViewportHint,
     ) {
         require(
-            loadType == PREPEND || loadType == APPEND
+            loadType == PREPEND || loadType == APPEND,
         ) {
             "invalid load type for reset: $loadType"
         }
         state.modify(
-            accessHint = null
+            accessHint = null,
         ) { prependHint, appendHint ->
             if (loadType == PREPEND) {
                 prependHint.value = viewportHint
@@ -78,14 +78,14 @@ internal class HintHandler {
         state.modify(viewportHint as? ViewportHint.Access) { prependHint, appendHint ->
             if (viewportHint.shouldPrioritizeOver(
                     previous = prependHint.value,
-                    loadType = PREPEND
+                    loadType = PREPEND,
                 )
             ) {
                 prependHint.value = viewportHint
             }
             if (viewportHint.shouldPrioritizeOver(
                     previous = appendHint.value,
-                    loadType = APPEND
+                    loadType = APPEND,
                 )
             ) {
                 appendHint.value = viewportHint
@@ -109,7 +109,7 @@ internal class HintHandler {
          */
         fun modify(
             accessHint: ViewportHint.Access?,
-            block: (prepend: HintFlow, append: HintFlow) -> Unit
+            block: (prepend: HintFlow, append: HintFlow) -> Unit,
         ) {
             lock.withLock {
                 if (accessHint != null) {
@@ -134,7 +134,7 @@ internal class HintHandler {
             }
         private val _flow = MutableSharedFlow<ViewportHint>(
             replay = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
         )
         val flow: Flow<ViewportHint>
             get() = _flow
@@ -143,7 +143,7 @@ internal class HintHandler {
 
 internal fun ViewportHint.shouldPrioritizeOver(
     previous: ViewportHint?,
-    loadType: LoadType
+    loadType: LoadType,
 ): Boolean {
     return when {
         previous == null -> true

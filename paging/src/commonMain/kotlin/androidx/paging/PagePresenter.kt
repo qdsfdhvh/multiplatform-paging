@@ -33,7 +33,7 @@ internal class PagePresenter<T : Any>(
     placeholdersAfter: Int,
 ) : NullPaddedList<T> {
     constructor(
-        insertEvent: PageEvent.Insert<T>
+        insertEvent: PageEvent.Insert<T>,
     ) : this(
         pages = insertEvent.pages,
         placeholdersBefore = insertEvent.placeholdersBefore,
@@ -77,7 +77,7 @@ internal class PagePresenter<T : Any>(
         return ItemSnapshotList(
             placeholdersBefore,
             placeholdersAfter,
-            pages.flatMap { it.data }
+            pages.flatMap { it.data },
         )
     }
 
@@ -119,7 +119,7 @@ internal class PagePresenter<T : Any>(
                 |from an existing generation of PagingData. If you see this exception, it is most
                 |likely a bug in the library. Please file a bug so we can fix it at:
                 |$BUGANIZER_URL
-                """.trimMargin()
+                """.trimMargin(),
             )
         }
     }
@@ -130,7 +130,7 @@ internal class PagePresenter<T : Any>(
             presentedItemsBefore = presentedItems / 2,
             presentedItemsAfter = presentedItems / 2,
             originalPageOffsetFirst = originalPageOffsetFirst,
-            originalPageOffsetLast = originalPageOffsetLast
+            originalPageOffsetLast = originalPageOffsetLast,
         )
     }
 
@@ -148,7 +148,7 @@ internal class PagePresenter<T : Any>(
             presentedItemsBefore = index - placeholdersBefore,
             presentedItemsAfter = size - index - placeholdersAfter - 1,
             originalPageOffsetFirst = originalPageOffsetFirst,
-            originalPageOffsetLast = originalPageOffsetLast
+            originalPageOffsetLast = originalPageOffsetLast,
         )
     }
 
@@ -179,7 +179,7 @@ internal class PagePresenter<T : Any>(
                 |of PagingData. If you see this exception, it is most likely a bug in the library.
                 |Please file a bug so we can fix it at:
                 |$BUGANIZER_URL
-                """.trimMargin()
+                """.trimMargin(),
             )
             PREPEND -> {
                 val placeholdersChangedCount = minOf(placeholdersBefore, count)
@@ -222,7 +222,7 @@ internal class PagePresenter<T : Any>(
                 if (placeholderInsertedCount > 0) {
                     callback.onInserted(
                         position = size - placeholderInsertedCount,
-                        count = placeholderInsertedCount
+                        count = placeholderInsertedCount,
                     )
                 } else if (placeholderInsertedCount < 0) {
                     callback.onRemoved(size, -placeholderInsertedCount)
@@ -231,7 +231,7 @@ internal class PagePresenter<T : Any>(
         }
         callback.onStateUpdate(
             source = insert.sourceLoadStates,
-            mediator = insert.mediatorLoadStates
+            mediator = insert.mediatorLoadStates,
         )
     }
 
@@ -302,7 +302,7 @@ internal class PagePresenter<T : Any>(
             callback.onStateUpdate(
                 loadType = PREPEND,
                 fromMediator = false,
-                loadState = NotLoading.Incomplete
+                loadState = NotLoading.Incomplete,
             )
         } else {
             val oldPlaceholdersAfter = placeholdersAfter
@@ -337,7 +337,7 @@ internal class PagePresenter<T : Any>(
             if (changeCount > 0) {
                 callback.onChanged(
                     position = size - drop.placeholdersRemaining,
-                    count = changeCount
+                    count = changeCount,
                 )
             }
 
@@ -345,7 +345,7 @@ internal class PagePresenter<T : Any>(
             callback.onStateUpdate(
                 loadType = APPEND,
                 fromMediator = false,
-                loadState = NotLoading.Incomplete
+                loadState = NotLoading.Incomplete,
             )
         }
     }

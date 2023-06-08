@@ -40,5 +40,5 @@ public enum class LoadType {
     /**
      * Load at the end of a [PagingData].
      */
-    APPEND
+    APPEND,
 }

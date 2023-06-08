@@ -35,7 +35,7 @@ public class ItemSnapshotList<T>(
     /**
      * The presented data, excluding placeholders.
      */
-    public val items: List<T>
+    public val items: List<T>,
 ) : AbstractList<T?>() {
 
     /**
@@ -64,7 +64,7 @@ public class ItemSnapshotList<T>(
             }
             in (placeholdersBefore + items.size) until size -> null
             else -> throw IndexOutOfBoundsException(
-                "Illegal attempt to access index $index in ItemSnapshotList of size $size"
+                "Illegal attempt to access index $index in ItemSnapshotList of size $size",
             )
         }
     }

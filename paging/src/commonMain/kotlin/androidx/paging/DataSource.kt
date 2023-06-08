@@ -166,7 +166,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.mapByPage
          */
         public open fun <ToValue : Any> map(
-            function: Function<Value, ToValue>
+            function: Function<Value, ToValue>,
         ): Factory<Key, ToValue> {
             return mapByPage(Function { list -> list.map { function.apply(it) } })
         }
@@ -207,7 +207,7 @@ internal constructor(internal val type: KeyType) {
          * @see DataSource.mapByPage
          */
         public open fun <ToValue : Any> mapByPage(
-            function: Function<List<Value>, List<ToValue>>
+            function: Function<List<Value>, List<ToValue>>,
         ): Factory<Key, ToValue> = object : Factory<Key, ToValue>() {
             override fun create(): DataSource<Key, ToValue> =
                 this@Factory.create().mapByPage(function)
@@ -231,17 +231,17 @@ internal constructor(internal val type: KeyType) {
          */
         @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
         public open fun <ToValue : Any> mapByPage(
-            function: (List<Value>) -> List<ToValue>
+            function: (List<Value>) -> List<ToValue>,
         ): Factory<Key, ToValue> = mapByPage(Function { function(it) })
 
         @JvmOverloads
         public fun asPagingSourceFactory(
-            fetchDispatcher: CoroutineDispatcher = defaultDispatcher
+            fetchDispatcher: CoroutineDispatcher = defaultDispatcher,
         ): () -> PagingSource<Key, Value> = SuspendingPagingSourceFactory(
             delegate = {
                 LegacyPagingSource(fetchDispatcher, create())
             },
-            dispatcher = fetchDispatcher
+            dispatcher = fetchDispatcher,
         )
     }
 
@@ -260,7 +260,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.mapByPage
      */
     public open fun <ToValue : Any> mapByPage(
-        function: Function<List<Value>, List<ToValue>>
+        function: Function<List<Value>, List<ToValue>>,
     ): DataSource<Key, ToValue> = WrapperDataSource(this, function)
 
     /**
@@ -281,7 +281,7 @@ internal constructor(internal val type: KeyType) {
      */
     @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
     public open fun <ToValue : Any> mapByPage(
-        function: (List<Value>) -> List<ToValue>
+        function: (List<Value>) -> List<ToValue>,
     ): DataSource<Key, ToValue> = mapByPage(Function { function(it) })
 
     /**
@@ -299,7 +299,7 @@ internal constructor(internal val type: KeyType) {
      * @see DataSource.Factory.mapByPage
      */
     public open fun <ToValue : Any> map(
-        function: Function<Value, ToValue>
+        function: Function<Value, ToValue>,
     ): DataSource<Key, ToValue> {
         return mapByPage { list -> list.map { function.apply(it) } }
     }
@@ -322,7 +322,7 @@ internal constructor(internal val type: KeyType) {
      */
     @JvmSynthetic // hidden to preserve Java source compat with arch.core.util.Function variant
     public open fun <ToValue : Any> map(
-        function: (Value) -> ToValue
+        function: (Value) -> ToValue,
     ): DataSource<Key, ToValue> = map(Function { function(it) })
 
     /**
@@ -398,7 +398,7 @@ internal constructor(internal val type: KeyType) {
         val key: K?,
         val initialLoadSize: Int,
         val placeholdersEnabled: Boolean,
-        val pageSize: Int
+        val pageSize: Int,
     ) {
         init {
             if (type != LoadType.REFRESH && key == null) {
@@ -416,7 +416,7 @@ internal constructor(internal val type: KeyType) {
         val prevKey: Any?,
         val nextKey: Any?,
         val itemsBefore: Int = COUNT_UNDEFINED,
-        val itemsAfter: Int = COUNT_UNDEFINED
+        val itemsAfter: Int = COUNT_UNDEFINED,
     ) {
         init {
             if (itemsBefore < 0 && itemsBefore != COUNT_UNDEFINED) {
@@ -425,12 +425,12 @@ internal constructor(internal val type: KeyType) {
             if (data.isEmpty() && (itemsBefore > 0 || itemsAfter > 0)) {
                 // If non-initial, itemsBefore, itemsAfter are COUNT_UNDEFINED
                 throw IllegalArgumentException(
-                    "Initial result cannot be empty if items are present in data set."
+                    "Initial result cannot be empty if items are present in data set.",
                 )
             }
             if (itemsAfter < 0 && itemsAfter != COUNT_UNDEFINED) {
                 throw IllegalArgumentException(
-                    "List size + position too large, last item in list beyond totalCount."
+                    "List size + position too large, last item in list beyond totalCount.",
                 )
             }
         }
@@ -445,7 +445,7 @@ internal constructor(internal val type: KeyType) {
                 throw IllegalStateException(
                     "Placeholders requested, but totalCount not provided. Please call the" +
                         " three-parameter onResult method, or disable placeholders in the" +
-                        " PagedList.Config"
+                        " PagedList.Config",
                 )
             }
 
@@ -454,13 +454,13 @@ internal constructor(internal val type: KeyType) {
                 throw IllegalArgumentException(
                     "PositionalDataSource requires initial load size to be a multiple of page" +
                         " size to support internal tiling. loadSize ${data.size}, position" +
-                        " $itemsBefore, totalCount $totalCount, pageSize $pageSize"
+                        " $itemsBefore, totalCount $totalCount, pageSize $pageSize",
                 )
             }
             if (itemsBefore % pageSize != 0) {
                 throw IllegalArgumentException(
                     "Initial load must be pageSize aligned.Position = $itemsBefore, pageSize =" +
-                        " $pageSize"
+                        " $pageSize",
                 )
             }
         }
@@ -480,13 +480,13 @@ internal constructor(internal val type: KeyType) {
 
             internal fun <ToValue : Any, Value : Any> convert(
                 result: BaseResult<ToValue>,
-                function: Function<List<ToValue>, List<Value>>
+                function: Function<List<ToValue>, List<Value>>,
             ) = BaseResult(
                 data = convert(function, result.data),
                 prevKey = result.prevKey,
                 nextKey = result.nextKey,
                 itemsBefore = result.itemsBefore,
-                itemsAfter = result.itemsAfter
+                itemsAfter = result.itemsAfter,
             )
         }
     }
@@ -494,7 +494,7 @@ internal constructor(internal val type: KeyType) {
     internal enum class KeyType {
         POSITIONAL,
         PAGE_KEYED,
-        ITEM_KEYED
+        ITEM_KEYED,
     }
 
     internal abstract suspend fun load(params: Params<Key>): BaseResult<Value>
@@ -504,12 +504,12 @@ internal constructor(internal val type: KeyType) {
     internal companion object {
         internal fun <A, B> convert(
             function: Function<List<A>, List<B>>,
-            source: List<A>
+            source: List<A>,
         ): List<B> {
             val dest = function.apply(source)
             if (dest.size != source.size) {
                 throw IllegalStateException(
-                    "Invalid Function $function changed return size. This is not supported."
+                    "Invalid Function $function changed return size. This is not supported.",
                 )
             }
             return dest

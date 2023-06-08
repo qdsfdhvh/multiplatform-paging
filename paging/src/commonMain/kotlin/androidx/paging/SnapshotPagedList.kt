@@ -22,7 +22,7 @@ internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) :
     pagedList.coroutineScope,
     pagedList.notifyDispatcher,
     pagedList.storage.snapshot(),
-    pagedList.config
+    pagedList.config,
 ) {
     override val isImmutable = true
 

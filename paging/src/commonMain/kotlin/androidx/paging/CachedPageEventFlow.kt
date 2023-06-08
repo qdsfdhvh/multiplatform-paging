@@ -37,7 +37,7 @@ import kotlinx.coroutines.sync.withLock
  */
 internal class CachedPageEventFlow<T : Any>(
     src: Flow<PageEvent<T>>,
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ) {
     private val pageController = FlattenedPageController<T>()
 
@@ -50,7 +50,7 @@ internal class CachedPageEventFlow<T : Any>(
     private val mutableSharedSrc = MutableSharedFlow<IndexedValue<PageEvent<T>>?>(
         replay = 1,
         extraBufferCapacity = Channel.UNLIMITED,
-        onBufferOverflow = BufferOverflow.SUSPEND
+        onBufferOverflow = BufferOverflow.SUSPEND,
     )
 
     /**
@@ -135,7 +135,7 @@ private class FlattenedPageController<T : Any> {
             catchupEvents.mapIndexed { index, pageEvent ->
                 IndexedValue(
                     index = startEventIndex + index,
-                    value = pageEvent
+                    value = pageEvent,
                 )
             }
         }
@@ -252,15 +252,15 @@ internal class FlattenedPageEventStorage<T : Any> {
                     placeholdersBefore = placeholdersBefore,
                     placeholdersAfter = placeholdersAfter,
                     sourceLoadStates = source,
-                    mediatorLoadStates = mediatorStates
-                )
+                    mediatorLoadStates = mediatorStates,
+                ),
             )
         } else {
             events.add(
                 PageEvent.LoadStateUpdate(
                     source = source,
-                    mediator = mediatorStates
-                )
+                    mediator = mediatorStates,
+                ),
             )
         }
 

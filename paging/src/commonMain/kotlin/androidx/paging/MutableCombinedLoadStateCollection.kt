@@ -110,19 +110,19 @@ internal class MutableCombinedLoadStateCollection {
             previousState = refresh,
             sourceRefreshState = source.refresh,
             sourceState = source.refresh,
-            remoteState = mediator?.refresh
+            remoteState = mediator?.refresh,
         )
         prepend = computeHelperState(
             previousState = prepend,
             sourceRefreshState = source.refresh,
             sourceState = source.prepend,
-            remoteState = mediator?.prepend
+            remoteState = mediator?.prepend,
         )
         append = computeHelperState(
             previousState = append,
             sourceRefreshState = source.refresh,
             sourceState = source.append,
-            remoteState = mediator?.append
+            remoteState = mediator?.append,
         )
 
         val snapshot = snapshot()
@@ -143,7 +143,7 @@ internal class MutableCombinedLoadStateCollection {
         previousState: LoadState,
         sourceRefreshState: LoadState,
         sourceState: LoadState,
-        remoteState: LoadState?
+        remoteState: LoadState?,
     ): LoadState {
         if (remoteState == null) return sourceState
 

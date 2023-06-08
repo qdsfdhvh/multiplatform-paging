@@ -27,7 +27,7 @@ public data class LoadStates(
     /** [LoadState] corresponding to [LoadType.PREPEND] loads. */
     public val prepend: LoadState,
     /** [LoadState] corresponding to [LoadType.APPEND] loads. */
-    public val append: LoadState
+    public val append: LoadState,
 ) {
     /** @suppress */
     public inline fun forEach(op: (LoadType, LoadState) -> Unit) {
@@ -39,13 +39,13 @@ public data class LoadStates(
     internal fun modifyState(loadType: LoadType, newState: LoadState): LoadStates {
         return when (loadType) {
             LoadType.APPEND -> copy(
-                append = newState
+                append = newState,
             )
             LoadType.PREPEND -> copy(
-                prepend = newState
+                prepend = newState,
             )
             LoadType.REFRESH -> copy(
-                refresh = newState
+                refresh = newState,
             )
         }
     }
@@ -60,7 +60,7 @@ public data class LoadStates(
         val IDLE = LoadStates(
             refresh = NotLoading.Incomplete,
             prepend = NotLoading.Incomplete,
-            append = NotLoading.Incomplete
+            append = NotLoading.Incomplete,
         )
     }
 }

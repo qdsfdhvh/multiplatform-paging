@@ -36,13 +36,13 @@ import kotlinx.coroutines.sync.withLock
  * Note: When a block is cancelled, the outer scope (which called runInIsolation) is NOT cancelled.
  */
 internal class SingleRunner(
-    cancelPreviousInEqualPriority: Boolean = true
+    cancelPreviousInEqualPriority: Boolean = true,
 ) {
     private val holder = Holder(this, cancelPreviousInEqualPriority)
 
     suspend fun runInIsolation(
         priority: Int = DEFAULT_PRIORITY,
-        block: suspend () -> Unit
+        block: suspend () -> Unit,
     ) {
         try {
             coroutineScope {
@@ -51,7 +51,7 @@ internal class SingleRunner(
                 }
                 val run = holder.tryEnqueue(
                     priority = priority,
-                    job = myJob
+                    job = myJob,
                 )
                 if (run) {
                     try {
@@ -79,7 +79,7 @@ internal class SingleRunner(
 
     private class Holder(
         private val singleRunner: SingleRunner,
-        private val cancelPreviousInEqualPriority: Boolean
+        private val cancelPreviousInEqualPriority: Boolean,
     ) {
         private val mutex = Mutex()
         private var previous: Job? = null
@@ -87,7 +87,7 @@ internal class SingleRunner(
 
         suspend fun tryEnqueue(
             priority: Int,
-            job: Job
+            job: Job,
         ): Boolean {
             mutex.withLock {
                 val prev = previous

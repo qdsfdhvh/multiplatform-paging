@@ -70,7 +70,7 @@ internal sealed class ViewportHint(
      */
     internal fun presentedItemsBeyondAnchor(loadType: LoadType): Int = when (loadType) {
         LoadType.REFRESH -> throw IllegalArgumentException(
-            "Cannot get presentedItems for loadType: REFRESH"
+            "Cannot get presentedItems for loadType: REFRESH",
         )
         LoadType.PREPEND -> presentedItemsBefore
         LoadType.APPEND -> presentedItemsAfter
@@ -90,7 +90,7 @@ internal sealed class ViewportHint(
         presentedItemsBefore: Int,
         presentedItemsAfter: Int,
         originalPageOffsetFirst: Int,
-        originalPageOffsetLast: Int
+        originalPageOffsetLast: Int,
     ) : ViewportHint(
         presentedItemsBefore = presentedItemsBefore,
         presentedItemsAfter = presentedItemsAfter,
@@ -130,7 +130,7 @@ internal sealed class ViewportHint(
         presentedItemsBefore: Int,
         presentedItemsAfter: Int,
         originalPageOffsetFirst: Int,
-        originalPageOffsetLast: Int
+        originalPageOffsetLast: Int,
     ) : ViewportHint(
         presentedItemsBefore = presentedItemsBefore,
         presentedItemsAfter = presentedItemsAfter,

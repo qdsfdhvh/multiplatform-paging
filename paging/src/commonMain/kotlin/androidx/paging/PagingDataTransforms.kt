@@ -19,10 +19,10 @@ import androidx.paging.TerminalSeparatorType.FULLY_COMPLETE
 import kotlinx.coroutines.flow.map
 
 private inline fun <T : Any, R : Any> PagingData<T>.transform(
-    crossinline transform: suspend (PageEvent<T>) -> PageEvent<R>
+    crossinline transform: suspend (PageEvent<T>) -> PageEvent<R>,
 ) = PagingData(
     flow = flow.map { transform(it) },
-    receiver = receiver
+    receiver = receiver,
 )
 
 /**
@@ -30,7 +30,7 @@ private inline fun <T : Any, R : Any> PagingData<T>.transform(
  * element, as it is loaded.
  */
 public fun <T : Any, R : Any> PagingData<T>.map(
-    transform: suspend (T) -> R
+    transform: suspend (T) -> R,
 ): PagingData<R> = transform { it.map(transform) }
 
 /**
@@ -38,14 +38,14 @@ public fun <T : Any, R : Any> PagingData<T>.map(
  * to each element, as it is loaded.
  */
 public fun <T : Any, R : Any> PagingData<T>.flatMap(
-    transform: suspend (T) -> Iterable<R>
+    transform: suspend (T) -> Iterable<R>,
 ): PagingData<R> = transform { it.flatMap(transform) }
 
 /**
  * Returns a [PagingData] containing only elements matching the given [predicate]
  */
 public fun <T : Any> PagingData<T>.filter(
-    predicate: suspend (T) -> Boolean
+    predicate: suspend (T) -> Boolean,
 ): PagingData<T> = transform { it.filter(predicate) }
 
 /**
@@ -80,7 +80,7 @@ public fun <T : R, R : Any> PagingData<T>.insertSeparators(
     //     class SeparatorModel: UiModel
     return PagingData(
         flow = flow.insertEventSeparators(terminalSeparatorType, generator),
-        receiver = receiver
+        receiver = receiver,
     )
 }
 

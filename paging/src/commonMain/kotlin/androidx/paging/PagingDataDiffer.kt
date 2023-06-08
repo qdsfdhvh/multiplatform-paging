@@ -38,7 +38,7 @@ import kotlin.jvm.Volatile
 /** @suppress */
 public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
-    private val mainContext: CoroutineContext = Dispatchers.Main
+    private val mainContext: CoroutineContext = Dispatchers.Main,
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
@@ -89,7 +89,7 @@ public abstract class PagingDataDiffer<T : Any>(
         override fun onStateUpdate(
             loadType: LoadType,
             fromMediator: Boolean,
-            loadState: LoadState
+            loadState: LoadState,
         ) {
             val currentLoadState = combinedLoadStatesCollection.get(loadType, fromMediator)
 
@@ -110,7 +110,7 @@ public abstract class PagingDataDiffer<T : Any>(
 
         combinedLoadStatesCollection.set(
             sourceLoadStates = source,
-            remoteLoadStates = mediator
+            remoteLoadStates = mediator,
         )
     }
 
@@ -156,7 +156,7 @@ public abstract class PagingDataDiffer<T : Any>(
                                 TransformablePage(
                                     originalPageOffset = 0,
                                     data = event.data,
-                                )
+                                ),
                             ),
                             placeholdersBefore = 0,
                             placeholdersAfter = 0,
@@ -211,7 +211,7 @@ public abstract class PagingDataDiffer<T : Any>(
 
                                 if (shouldResendHint) {
                                     receiver?.accessHint(
-                                        presenter.accessHintForPresenterIndex(lastAccessedIndex)
+                                        presenter.accessHintForPresenterIndex(lastAccessedIndex),
                                     )
                                 } else {
                                     // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
@@ -438,7 +438,7 @@ public abstract class PagingDataDiffer<T : Any>(
             onListPresentable = {
                 presenter = newPresenter
                 onListPresentableCalled = true
-            }
+            },
         )
         check(onListPresentableCalled) {
             """Missing call to onListPresentable after new list was presented. If you are seeing
@@ -472,8 +472,8 @@ public abstract class PagingDataDiffer<T : Any>(
             lastAccessedIndex = transformedLastAccessedIndex
             receiver?.accessHint(
                 newPresenter.accessHintForPresenterIndex(
-                    transformedLastAccessedIndex
-                )
+                    transformedLastAccessedIndex,
+                ),
             )
         }
     }
@@ -504,5 +504,5 @@ public interface DifferCallback {
 public enum class DiffingChangePayload {
     ITEM_TO_PLACEHOLDER,
     PLACEHOLDER_TO_ITEM,
-    PLACEHOLDER_POSITION_CHANGE
+    PLACEHOLDER_POSITION_CHANGE,
 }

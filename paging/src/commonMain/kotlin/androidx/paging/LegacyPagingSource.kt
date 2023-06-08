@@ -36,7 +36,7 @@ import kotlinx.coroutines.withContext
 @OptIn(DelicateCoroutinesApi::class)
 public class LegacyPagingSource<Key : Any, Value : Any>(
     private val fetchDispatcher: CoroutineDispatcher,
-    internal val dataSource: DataSource<Key, Value>
+    internal val dataSource: DataSource<Key, Value>,
 ) : PagingSource<Key, Value>() {
     private var pageSize: Int = PAGE_SIZE_NOT_SET
 
@@ -93,7 +93,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
 
                 If you are seeing this message despite using a Pager, please file a bug:
                 $BUGANIZER_URL
-                """.trimIndent()
+                """.trimIndent(),
             )
             pageSize = guessPageSize(params)
         }
@@ -102,7 +102,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
             params.key,
             params.loadSize,
             params.placeholdersEnabled,
-            pageSize
+            pageSize,
         )
 
         return withContext(fetchDispatcher) {
@@ -114,7 +114,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
                     @Suppress("UNCHECKED_CAST")
                     if (data.isEmpty() && params is LoadParams.Append) null else nextKey as Key?,
                     itemsBefore,
-                    itemsAfter
+                    itemsAfter,
                 )
             }
         }

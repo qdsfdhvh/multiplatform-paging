@@ -40,7 +40,7 @@ internal sealed class PageEvent<T : Any> {
     data class StaticList<T : Any>(
         val data: List<T>,
         val sourceLoadStates: LoadStates? = null,
-        val mediatorLoadStates: LoadStates? = null
+        val mediatorLoadStates: LoadStates? = null,
     ) : PageEvent<T>() {
         override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> {
             return StaticList(
@@ -51,7 +51,7 @@ internal sealed class PageEvent<T : Any> {
         }
 
         override suspend fun <R : Any> flatMap(
-            transform: suspend (T) -> Iterable<R>
+            transform: suspend (T) -> Iterable<R>,
         ): PageEvent<R> {
             return StaticList(
                 data = data.flatMap { transform(it) },
@@ -77,7 +77,7 @@ internal sealed class PageEvent<T : Any> {
         val placeholdersBefore: Int,
         val placeholdersAfter: Int,
         val sourceLoadStates: LoadStates,
-        val mediatorLoadStates: LoadStates? = null
+        val mediatorLoadStates: LoadStates? = null,
     ) : PageEvent<T>() {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
@@ -97,11 +97,11 @@ internal sealed class PageEvent<T : Any> {
         }
 
         private inline fun <R : Any> mapPages(
-            transform: (TransformablePage<T>) -> TransformablePage<R>
+            transform: (TransformablePage<T>) -> TransformablePage<R>,
         ) = transformPages { it.map(transform) }
 
         internal inline fun <R : Any> transformPages(
-            transform: (List<TransformablePage<T>>) -> List<TransformablePage<R>>
+            transform: (List<TransformablePage<T>>) -> List<TransformablePage<R>>,
         ): Insert<R> = Insert(
             loadType = loadType,
             pages = transform(pages),
@@ -116,12 +116,12 @@ internal sealed class PageEvent<T : Any> {
                 originalPageOffsets = it.originalPageOffsets,
                 data = it.data.map { item -> transform(item) },
                 hintOriginalPageOffset = it.hintOriginalPageOffset,
-                hintOriginalIndices = it.hintOriginalIndices
+                hintOriginalIndices = it.hintOriginalIndices,
             )
         }
 
         override suspend fun <R : Any> flatMap(
-            transform: suspend (T) -> Iterable<R>
+            transform: suspend (T) -> Iterable<R>,
         ): PageEvent<R> = mapPages {
             val data = mutableListOf<R>()
             val originalIndices = mutableListOf<Int>()
@@ -136,7 +136,7 @@ internal sealed class PageEvent<T : Any> {
                 originalPageOffsets = it.originalPageOffsets,
                 data = data,
                 hintOriginalPageOffset = it.hintOriginalPageOffset,
-                hintOriginalIndices = originalIndices
+                hintOriginalIndices = originalIndices,
             )
         }
 
@@ -153,7 +153,7 @@ internal sealed class PageEvent<T : Any> {
                 originalPageOffsets = it.originalPageOffsets,
                 data = data,
                 hintOriginalPageOffset = it.hintOriginalPageOffset,
-                hintOriginalIndices = originalIndices
+                hintOriginalIndices = originalIndices,
             )
         }
 
@@ -163,7 +163,7 @@ internal sealed class PageEvent<T : Any> {
                 placeholdersBefore: Int,
                 placeholdersAfter: Int,
                 sourceLoadStates: LoadStates,
-                mediatorLoadStates: LoadStates? = null
+                mediatorLoadStates: LoadStates? = null,
             ) = Insert(
                 REFRESH,
                 pages,
@@ -177,7 +177,7 @@ internal sealed class PageEvent<T : Any> {
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
                 sourceLoadStates: LoadStates,
-                mediatorLoadStates: LoadStates? = null
+                mediatorLoadStates: LoadStates? = null,
             ) = Insert(
                 PREPEND,
                 pages,
@@ -191,7 +191,7 @@ internal sealed class PageEvent<T : Any> {
                 pages: List<TransformablePage<T>>,
                 placeholdersAfter: Int,
                 sourceLoadStates: LoadStates,
-                mediatorLoadStates: LoadStates? = null
+                mediatorLoadStates: LoadStates? = null,
             ) = Insert(
                 APPEND,
                 pages,
@@ -230,7 +230,7 @@ internal sealed class PageEvent<T : Any> {
          * Largest [TransformablePage.originalPageOffsets] to drop; inclusive
          */
         val maxPageOffset: Int,
-        val placeholdersRemaining: Int
+        val placeholdersRemaining: Int,
     ) : PageEvent<T>() {
 
         init {

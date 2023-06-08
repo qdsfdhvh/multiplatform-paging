@@ -35,11 +35,11 @@ private class MulticastedPagingData<T : Any>(
     val scope: CoroutineScope,
     val parent: PagingData<T>,
     // used in tests
-    val tracker: ActiveFlowTracker? = null
+    val tracker: ActiveFlowTracker? = null,
 ) {
     private val accumulated = CachedPageEventFlow(
         src = parent.flow,
-        scope = scope
+        scope = scope,
     ).also {
         tracker?.onNewCachedEventFlow(it)
     }
@@ -50,7 +50,7 @@ private class MulticastedPagingData<T : Any>(
         }.onCompletion {
             tracker?.onComplete(PAGE_EVENT_FLOW)
         },
-        receiver = parent.receiver
+        receiver = parent.receiver,
     )
 
     suspend fun close() = accumulated.close()
@@ -81,19 +81,19 @@ private class MulticastedPagingData<T : Any>(
  * @param scope The coroutine scope where this page cache will be kept alive.
  */
 public fun <T : Any> Flow<PagingData<T>>.cachedIn(
-    scope: CoroutineScope
+    scope: CoroutineScope,
 ): Flow<PagingData<T>> = cachedIn(scope, null)
 
 internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope,
     // used in tests
-    tracker: ActiveFlowTracker? = null
+    tracker: ActiveFlowTracker? = null,
 ): Flow<PagingData<T>> {
     return this.simpleMapLatest {
         MulticastedPagingData(
             scope = scope,
             parent = it,
-            tracker = tracker
+            tracker = tracker,
         )
     }.simpleRunningReduce { prev, next ->
         prev.close()
@@ -108,7 +108,7 @@ internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
         scope = scope,
         started = SharingStarted.Lazily,
         // replay latest multicasted paging data since it is re-connectable.
-        replay = 1
+        replay = 1,
     )
 }
 
@@ -122,6 +122,6 @@ internal interface ActiveFlowTracker {
 
     enum class FlowType {
         PAGED_DATA_FLOW,
-        PAGE_EVENT_FLOW
+        PAGE_EVENT_FLOW,
     }
 }

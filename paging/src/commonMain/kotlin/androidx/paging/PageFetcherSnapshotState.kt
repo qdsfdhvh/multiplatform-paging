@@ -40,7 +40,7 @@ import kotlinx.coroutines.sync.withLock
  * Note: This class is not thread-safe and must be guarded by a lock!
  */
 internal class PageFetcherSnapshotState<Key : Any, Value : Any> private constructor(
-    private val config: PagingConfig
+    private val config: PagingConfig,
 ) {
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
@@ -309,7 +309,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
                     !config.enablePlaceholders -> 0
                     loadType == PREPEND -> placeholdersBefore + itemsToDrop
                     else -> placeholdersAfter + itemsToDrop
-                }
+                },
             )
         }
     }
@@ -369,7 +369,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
             return@let anchorPosition
         },
         config = config,
-        leadingPlaceholderCount = placeholdersBefore
+        leadingPlaceholderCount = placeholdersBefore,
     )
 
     /**
@@ -378,13 +378,13 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
      */
     @Suppress("SyntheticAccessor")
     internal class Holder<Key : Any, Value : Any>(
-        private val config: PagingConfig
+        private val config: PagingConfig,
     ) {
         private val lock = Mutex()
         private val state = PageFetcherSnapshotState<Key, Value>(config)
 
         suspend inline fun <T> withLock(
-            block: (state: PageFetcherSnapshotState<Key, Value>) -> T
+            block: (state: PageFetcherSnapshotState<Key, Value>) -> T,
         ): T {
             return lock.withLock {
                 block(state)

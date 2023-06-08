@@ -74,7 +74,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private val pageEventChannelFlowJob = Job()
 
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow<PageEvent<Value>>(
-        pageEventChannelFlowJob
+        pageEventChannelFlowJob,
     ) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
@@ -106,7 +106,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 .collect {
                     val (sourceLoadStates, remotePagingState) = stateHolder.withLock { state ->
                         state.sourceLoadStates.snapshot() to state.currentPagingState(
-                            hintHandler.lastAccessHint
+                            hintHandler.lastAccessHint,
                         )
                     }
                     // tell remote mediator to retry and it will trigger necessary work / change
@@ -129,7 +129,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                                 else -> stateHolder.withLock { state ->
                                     state.failedHintsByLoadType[loadType]
                                 }
-                            }
+                            },
                         )
 
                         // If retrying REFRESH from PagingSource succeeds, start collection on
@@ -178,7 +178,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     @Suppress("SuspendFunctionOnCoroutineScope")
     private suspend fun retryLoadError(
         loadType: LoadType,
-        viewportHint: ViewportHint?
+        viewportHint: ViewportHint?,
     ) {
         when (loadType) {
             REFRESH -> {
@@ -212,11 +212,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         // Pseudo-tiling via invalidation on jumps.
         if (config.jumpThreshold != COUNT_UNDEFINED) {
             listOf(
-                APPEND, PREPEND
+                APPEND,
+                PREPEND,
             ).forEach { loadType ->
                 launch {
                     hintHandler.hintFor(
-                        loadType
+                        loadType,
                     ).filter { hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
@@ -244,7 +245,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
      * @param loadType [PREPEND] or [APPEND]
      */
     private suspend fun Flow<Int>.collectAsGenerationalViewportHints(
-        loadType: LoadType
+        loadType: LoadType,
     ) = simpleFlatMapLatest { generationId ->
         // Reset state to Idle and setup a new flow for consuming incoming load hints.
         // Subsequent generationIds are normally triggered by cancellation.
@@ -291,18 +292,18 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     // Update loadStates which are sent along with this load's Insert PageEvent.
                     state.sourceLoadStates.set(
                         type = REFRESH,
-                        state = NotLoading.Incomplete
+                        state = NotLoading.Incomplete,
                     )
                     if (result.prevKey == null) {
                         state.sourceLoadStates.set(
                             type = PREPEND,
-                            state = NotLoading.Complete
+                            state = NotLoading.Complete,
                         )
                     }
                     if (result.nextKey == null) {
                         state.sourceLoadStates.set(
                             type = APPEND,
-                            state = NotLoading.Complete
+                            state = NotLoading.Complete,
                         )
                     }
 
@@ -348,7 +349,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     // TODO: Consider making this a transform operation which emits PageEvents
     private suspend fun doLoad(
         loadType: LoadType,
-        generationalHint: GenerationalViewportHint
+        generationalHint: GenerationalViewportHint,
     ) {
         require(loadType != REFRESH) { "Use doInitialLoad for LoadType == REFRESH" }
 
@@ -413,7 +414,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         PREPEND -> result.prevKey
                         APPEND -> result.nextKey
                         else -> throw IllegalArgumentException(
-                            "Use doInitialLoad for LoadType == REFRESH"
+                            "Use doInitialLoad for LoadType == REFRESH",
                         )
                     }
 
@@ -485,7 +486,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         state = when {
                             endOfPaginationReached -> NotLoading.Complete
                             else -> NotLoading.Incomplete
-                        }
+                        },
                     )
                 }
 
@@ -522,14 +523,14 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 LoadStateUpdate(
                     source = sourceLoadStates.snapshot(),
                     mediator = null,
-                )
+                ),
             )
         }
     }
 
     private suspend fun PageFetcherSnapshotState<Key, Value>.setError(
         loadType: LoadType,
-        error: Error
+        error: Error,
     ) {
         if (sourceLoadStates.get(loadType) != error) {
             sourceLoadStates.set(type = loadType, state = error)
@@ -537,7 +538,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 LoadStateUpdate(
                     source = sourceLoadStates.snapshot(),
                     mediator = null,
-                )
+                ),
             )
         }
     }
@@ -548,7 +549,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private fun PageFetcherSnapshotState<Key, Value>.nextLoadKeyOrNull(
         loadType: LoadType,
         generationId: Int,
-        presentedItemsBeyondAnchor: Int
+        presentedItemsBeyondAnchor: Int,
     ): Key? {
         if (generationId != generationId(loadType)) return null
         // Skip load if in error state, unless retrying.
@@ -590,7 +591,7 @@ internal data class GenerationalViewportHint(val generationId: Int, val hint: Vi
  */
 internal fun GenerationalViewportHint.shouldPrioritizeOver(
     previous: GenerationalViewportHint,
-    loadType: LoadType
+    loadType: LoadType,
 ): Boolean {
     return when {
         // Prioritize hints from new generations, which increments after dropping.

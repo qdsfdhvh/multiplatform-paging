@@ -29,7 +29,7 @@ import kotlin.jvm.JvmStatic
  */
 public class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
-    internal val receiver: UiReceiver
+    internal val receiver: UiReceiver,
 ) {
     public companion object {
         internal val NOOP_RECEIVER = object : UiReceiver {
@@ -53,9 +53,9 @@ public class PagingData<T : Any> internal constructor(
                     data = listOf(),
                     sourceLoadStates = null,
                     mediatorLoadStates = null,
-                )
+                ),
             ),
-            receiver = NOOP_RECEIVER
+            receiver = NOOP_RECEIVER,
         )
 
         /**
@@ -79,9 +79,9 @@ public class PagingData<T : Any> internal constructor(
                     data = listOf(),
                     sourceLoadStates = sourceLoadStates,
                     mediatorLoadStates = mediatorLoadStates,
-                )
+                ),
             ),
-            receiver = NOOP_RECEIVER
+            receiver = NOOP_RECEIVER,
         )
 
         /**
@@ -100,9 +100,9 @@ public class PagingData<T : Any> internal constructor(
                     data = data,
                     sourceLoadStates = null,
                     mediatorLoadStates = null,
-                )
+                ),
             ),
-            receiver = NOOP_RECEIVER
+            receiver = NOOP_RECEIVER,
         )
 
         /**
@@ -127,9 +127,9 @@ public class PagingData<T : Any> internal constructor(
                     data = data,
                     sourceLoadStates = sourceLoadStates,
                     mediatorLoadStates = mediatorLoadStates,
-                )
+                ),
             ),
-            receiver = NOOP_RECEIVER
+            receiver = NOOP_RECEIVER,
         )
     }
 }

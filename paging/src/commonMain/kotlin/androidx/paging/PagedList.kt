@@ -127,7 +127,7 @@ public abstract class PagedList<T : Any> internal constructor(
      *
      * @return the Config of this PagedList
      */
-    public val config: Config
+    public val config: Config,
 ) : AbstractList<T?>() {
     /**
      * @suppress
@@ -160,7 +160,7 @@ public abstract class PagedList<T : Any> internal constructor(
             fetchDispatcher: CoroutineDispatcher,
             boundaryCallback: BoundaryCallback<T>?,
             config: Config,
-            key: K?
+            key: K?,
         ): PagedList<T> {
             val resolvedInitialPage = when (initialPage) {
                 null -> {
@@ -181,7 +181,7 @@ public abstract class PagedList<T : Any> internal constructor(
                                     "expected. To use a PagingSource which supports " +
                                     "invalidation, use a PagedList builder that accepts a " +
                                     "factory method for PagingSource or DataSource.Factory, " +
-                                    "such as LivePagedList."
+                                    "such as LivePagedList.",
                             )
                     }
                 }
@@ -195,7 +195,7 @@ public abstract class PagedList<T : Any> internal constructor(
                 boundaryCallback,
                 config,
                 resolvedInitialPage,
-                key
+                key,
             )
         }
 
@@ -208,7 +208,7 @@ public abstract class PagedList<T : Any> internal constructor(
         internal fun dispatchNaiveUpdatesSinceSnapshot(
             currentSize: Int,
             snapshotSize: Int,
-            callback: Callback
+            callback: Callback,
         ) {
             if (snapshotSize < currentSize) {
                 if (snapshotSize > 0) {
@@ -249,13 +249,14 @@ public abstract class PagedList<T : Any> internal constructor(
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData, which no " +
             "longer supports constructing snapshots of loaded data manually.",
-        replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager")
+        replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager"),
     )
     public class Builder<Key : Any, Value : Any> {
         private val pagingSource: PagingSource<Key, Value>?
         private var dataSource: DataSource<Key, Value>?
         private val initialPage: PagingSource.LoadResult.Page<Key, Value>?
         private val config: Config
+
         @OptIn(DelicateCoroutinesApi::class)
         private var coroutineScope: CoroutineScope = GlobalScope
         private var notifyDispatcher: CoroutineDispatcher? = null
@@ -293,7 +294,7 @@ public abstract class PagedList<T : Any> internal constructor(
          */
         public constructor(dataSource: DataSource<Key, Value>, pageSize: Int) : this(
             dataSource = dataSource,
-            config = Config(pageSize)
+            config = Config(pageSize),
         )
 
         /**
@@ -308,7 +309,7 @@ public abstract class PagedList<T : Any> internal constructor(
         public constructor(
             pagingSource: PagingSource<Key, Value>,
             initialPage: PagingSource.LoadResult.Page<Key, Value>,
-            config: Config
+            config: Config,
         ) {
             this.pagingSource = pagingSource
             this.dataSource = null
@@ -337,11 +338,11 @@ public abstract class PagedList<T : Any> internal constructor(
         public constructor(
             pagingSource: PagingSource<Key, Value>,
             initialPage: PagingSource.LoadResult.Page<Key, Value>,
-            pageSize: Int
+            pageSize: Int,
         ) : this(
             pagingSource = pagingSource,
             initialPage = initialPage,
-            config = Config(pageSize)
+            config = Config(pageSize),
         )
 
         /**
@@ -357,7 +358,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return this
          */
         public fun setCoroutineScope(
-            coroutineScope: CoroutineScope
+            coroutineScope: CoroutineScope,
         ): Builder<Key, Value> = apply {
             this.coroutineScope = coroutineScope
         }
@@ -370,7 +371,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return this
          */
         public fun setNotifyDispatcher(
-            notifyDispatcher: CoroutineDispatcher
+            notifyDispatcher: CoroutineDispatcher,
         ): Builder<Key, Value> = apply {
             this.notifyDispatcher = notifyDispatcher
         }
@@ -386,7 +387,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return this
          */
         public fun setFetchDispatcher(
-            fetchDispatcher: CoroutineDispatcher
+            fetchDispatcher: CoroutineDispatcher,
         ): Builder<Key, Value> = apply {
             this.fetchDispatcher = fetchDispatcher
         }
@@ -400,7 +401,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return this
          */
         public fun setBoundaryCallback(
-            boundaryCallback: BoundaryCallback<Value>?
+            boundaryCallback: BoundaryCallback<Value>?,
         ): Builder<Key, Value> = apply {
             this.boundaryCallback = boundaryCallback
         }
@@ -412,7 +413,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @return this
          */
         public fun setInitialKey(
-            initialKey: Key?
+            initialKey: Key?,
         ): Builder<Key, Value> = apply {
             this.initialKey = initialKey
         }
@@ -446,7 +447,7 @@ public abstract class PagedList<T : Any> internal constructor(
             val pagingSource = pagingSource ?: dataSource?.let { dataSource ->
                 LegacyPagingSource(
                     fetchDispatcher = fetchDispatcher,
-                    dataSource = dataSource
+                    dataSource = dataSource,
                 )
             }
 
@@ -466,7 +467,7 @@ public abstract class PagedList<T : Any> internal constructor(
                 fetchDispatcher,
                 boundaryCallback,
                 config,
-                initialKey
+                initialKey,
             )
         }
     }
@@ -548,7 +549,7 @@ public abstract class PagedList<T : Any> internal constructor(
          * @see PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
          * @see PagedList.Config.Builder.setMaxSize
          */
-        public val maxSize: Int
+        public val maxSize: Int,
     ) {
         /**
          * Builder class for [PagedList.Config].
@@ -583,7 +584,7 @@ public abstract class PagedList<T : Any> internal constructor(
              * @throws IllegalArgumentException if pageSize is < `1`.
              */
             public fun setPageSize(
-                pageSize: Int
+                pageSize: Int,
             ): Builder = apply {
                 if (pageSize < 1) {
                     throw IllegalArgumentException("Page size must be a positive number")
@@ -607,7 +608,7 @@ public abstract class PagedList<T : Any> internal constructor(
              * @return this
              */
             public fun setPrefetchDistance(
-                prefetchDistance: Int
+                prefetchDistance: Int,
             ): Builder = apply {
                 this.prefetchDistance = prefetchDistance
             }
@@ -640,7 +641,7 @@ public abstract class PagedList<T : Any> internal constructor(
              * @return this
              */
             public fun setEnablePlaceholders(
-                enablePlaceholders: Boolean
+                enablePlaceholders: Boolean,
             ): Builder = apply {
                 this.enablePlaceholders = enablePlaceholders
             }
@@ -657,7 +658,7 @@ public abstract class PagedList<T : Any> internal constructor(
              * @return this
              */
             public fun setInitialLoadSizeHint(
-                initialLoadSizeHint: Int
+                initialLoadSizeHint: Int,
             ): Builder = apply {
                 this.initialLoadSizeHint = initialLoadSizeHint
             }
@@ -717,14 +718,14 @@ public abstract class PagedList<T : Any> internal constructor(
                     throw IllegalArgumentException(
                         "Placeholders and prefetch are the only ways" +
                             " to trigger loading of more data in the PagedList, so either" +
-                            " placeholders must be enabled, or prefetch distance must be > 0."
+                            " placeholders must be enabled, or prefetch distance must be > 0.",
                     )
                 }
                 if (maxSize != MAX_SIZE_UNBOUNDED && maxSize < pageSize + prefetchDistance * 2) {
                     throw IllegalArgumentException(
                         "Maximum size must be at least pageSize + 2*prefetchDist" +
                             ", pageSize=$pageSize, prefetchDist=$prefetchDistance" +
-                            ", maxSize=$maxSize"
+                            ", maxSize=$maxSize",
                     )
                 }
 
@@ -733,7 +734,7 @@ public abstract class PagedList<T : Any> internal constructor(
                     prefetchDistance,
                     enablePlaceholders,
                     initialLoadSizeHint,
-                    maxSize
+                    maxSize,
                 )
             }
 
@@ -917,7 +918,7 @@ public abstract class PagedList<T : Any> internal constructor(
     @Deprecated(
         message = "DataSource is deprecated and has been replaced by PagingSource. PagedList " +
             "offers indirect ways of controlling fetch ('loadAround()', 'retry()') so that " +
-            "you should not need to access the DataSource/PagingSource."
+            "you should not need to access the DataSource/PagingSource.",
     )
     public val dataSource: DataSource<*, T>
         @Suppress("DocumentExceptions")
@@ -929,7 +930,7 @@ public abstract class PagedList<T : Any> internal constructor(
             }
             throw IllegalStateException(
                 "Attempt to access dataSource on a PagedList that was instantiated with a " +
-                    "${pagingSource::class.simpleName} instead of a DataSource"
+                    "${pagingSource::class.simpleName} instead of a DataSource",
             )
         }
 
@@ -1139,7 +1140,7 @@ public abstract class PagedList<T : Any> internal constructor(
     @Deprecated(
         "Dispatching a diff since snapshot created is behavior that can be instead " +
             "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
-            "changes since calling PagedList.snapshot()."
+            "changes since calling PagedList.snapshot().",
     )
     public fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
         if (previousSnapshot != null && previousSnapshot !== this) {
@@ -1219,14 +1220,14 @@ public abstract class PagedList<T : Any> internal constructor(
  */
 @Suppress(
     "FunctionName",
-    "DEPRECATION"
+    "DEPRECATION",
 )
 @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
 public suspend fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,
     config: PagedList.Config,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
-    initialKey: Key? = null
+    initialKey: Key? = null,
 ): PagedList<Value> {
     return PagedList.Builder(dataSource, config)
         .setBoundaryCallback(boundaryCallback)
