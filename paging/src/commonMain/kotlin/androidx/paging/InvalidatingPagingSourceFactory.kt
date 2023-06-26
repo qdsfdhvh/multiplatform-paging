@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.platform.CopyOnWriteArrayList
 
 /**
@@ -31,8 +32,9 @@ import androidx.paging.platform.CopyOnWriteArrayList
  */
 public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>,
-) : () -> PagingSource<Key, Value> {
+) : PagingSourceFactory<Key, Value> {
 
+    @VisibleForTesting
     internal val pagingSources = CopyOnWriteArrayList<PagingSource<Key, Value>>()
 
     /**

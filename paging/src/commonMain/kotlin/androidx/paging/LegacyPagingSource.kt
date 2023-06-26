@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.RestrictTo
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
@@ -24,18 +25,18 @@ import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.internal.BUGANIZER_URL
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
  *
- * @hide
  */
 @OptIn(DelicateCoroutinesApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LegacyPagingSource<Key : Any, Value : Any>(
-    private val fetchDispatcher: CoroutineDispatcher,
+    private val fetchContext: CoroutineContext,
     internal val dataSource: DataSource<Key, Value>,
 ) : PagingSource<Key, Value>() {
     private var pageSize: Int = PAGE_SIZE_NOT_SET
@@ -51,8 +52,8 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
     }
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setPageSize(pageSize: Int) {
         check(this.pageSize == PAGE_SIZE_NOT_SET || pageSize == this.pageSize) {
             "Page size is already set to ${this.pageSize}."
@@ -105,7 +106,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
             pageSize,
         )
 
-        return withContext(fetchDispatcher) {
+        return withContext(fetchContext) {
             dataSource.load(dataSourceParams).run {
                 LoadResult.Page(
                     data,

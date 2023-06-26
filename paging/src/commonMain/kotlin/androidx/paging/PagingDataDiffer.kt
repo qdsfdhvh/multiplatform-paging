@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
@@ -24,25 +26,31 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
+import androidx.paging.internal.appendMediatorStatesIfNotNull
 import androidx.paging.platform.CopyOnWriteArrayList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.Volatile
 
 /** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
     private val mainContext: CoroutineContext = Dispatchers.Main,
+    cachedPagingData: PagingData<T>? = null,
 ) {
-    private var presenter: PagePresenter<T> = PagePresenter.initial()
-    private var receiver: UiReceiver? = null
-    private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection()
+    private var hintReceiver: HintReceiver? = null
+    private var uiReceiver: UiReceiver? = null
+    private var presenter: PagePresenter<T> = PagePresenter.initial(cachedPagingData?.cachedEvent())
+    private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection().apply {
+        cachedPagingData?.cachedEvent()?.let { set(it.sourceLoadStates, it.mediatorLoadStates) }
+    }
     private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
     private val collectFromRunner = SingleRunner()
@@ -57,14 +65,14 @@ public abstract class PagingDataDiffer<T : Any>(
      * after being sent to [PageFetcher], which is only capable of handling prefetchDistance
      * before transformations.
      */
-    @Volatile
+    // @Volatile
     private var lastAccessedIndexUnfulfilled: Boolean = false
 
     /**
      * Track last index access so it can be forwarded to new generations after DiffUtil runs and
      * it is transformed to an index in the new list.
      */
-    @Volatile
+    // @Volatile
     private var lastAccessedIndex: Int = 0
 
     private val processPageEventCallback = object : ProcessPageEventCallback {
@@ -91,23 +99,13 @@ public abstract class PagingDataDiffer<T : Any>(
             fromMediator: Boolean,
             loadState: LoadState,
         ) {
-            val currentLoadState = combinedLoadStatesCollection.get(loadType, fromMediator)
-
-            // No change, skip update + dispatch.
-            if (currentLoadState == loadState) return
-
+            // CombinedLoadStates is de-duplicated within set()
             combinedLoadStatesCollection.set(loadType, fromMediator, loadState)
         }
     }
 
     internal fun dispatchLoadStates(source: LoadStates, mediator: LoadStates?) {
-        // No change, skip update + dispatch.
-        if (combinedLoadStatesCollection.source == source &&
-            combinedLoadStatesCollection.mediator == mediator
-        ) {
-            return
-        }
-
+        // CombinedLoadStates is de-duplicated within set()
         combinedLoadStatesCollection.set(
             sourceLoadStates = source,
             remoteLoadStates = mediator,
@@ -137,10 +135,25 @@ public abstract class PagingDataDiffer<T : Any>(
 
     public suspend fun collectFrom(pagingData: PagingData<T>) {
         collectFromRunner.runInIsolation {
-            receiver = pagingData.receiver
-
+            uiReceiver = pagingData.uiReceiver
             pagingData.flow.collect { event ->
+                log(VERBOSE) { "Collected $event" }
                 withContext(mainContext) {
+                    /**
+                     * The hint receiver of a new generation is set only after it has been
+                     * presented. This ensures that:
+                     *
+                     * 1. while new generation is still loading, access hints (and jump hints) will
+                     * be sent to current generation.
+                     *
+                     * 2. the access hint sent from presentNewList will have the correct
+                     * placeholders and indexInPage adjusted according to new presenter's most
+                     * recent state
+                     *
+                     * Ensuring that viewport hints are sent to the correct generation helps
+                     * synchronize fetcher/presenter in the correct calculation of the
+                     * next anchorPosition.
+                     */
                     if (event is Insert && event.loadType == REFRESH) {
                         presentNewList(
                             pages = event.pages,
@@ -149,6 +162,7 @@ public abstract class PagingDataDiffer<T : Any>(
                             dispatchLoadStates = true,
                             sourceLoadStates = event.sourceLoadStates,
                             mediatorLoadStates = event.mediatorLoadStates,
+                            newHintReceiver = pagingData.hintReceiver,
                         )
                     } else if (event is StaticList) {
                         presentNewList(
@@ -164,6 +178,7 @@ public abstract class PagingDataDiffer<T : Any>(
                                 event.mediatorLoadStates != null,
                             sourceLoadStates = event.sourceLoadStates,
                             mediatorLoadStates = event.mediatorLoadStates,
+                            newHintReceiver = pagingData.hintReceiver,
                         )
                     } else {
                         if (postEvents()) {
@@ -182,10 +197,13 @@ public abstract class PagingDataDiffer<T : Any>(
                         // If index points to a placeholder after transformations, resend it unless
                         // there are no more items to load.
                         if (event is Insert) {
-                            val prependDone = combinedLoadStatesCollection.source.prepend
-                                .endOfPaginationReached
-                            val appendDone = combinedLoadStatesCollection.source.append
-                                .endOfPaginationReached
+                            val source = combinedLoadStatesCollection.stateFlow.value?.source
+                            checkNotNull(source) {
+                                "PagingDataDiffer.combinedLoadStatesCollection.stateFlow should" +
+                                    "not hold null CombinedLoadStates after Insert event."
+                            }
+                            val prependDone = source.prepend.endOfPaginationReached
+                            val appendDone = source.append.endOfPaginationReached
                             val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
                                 !(event.loadType == APPEND && appendDone)
 
@@ -210,7 +228,7 @@ public abstract class PagingDataDiffer<T : Any>(
                                     presenter.storageCount
 
                                 if (shouldResendHint) {
-                                    receiver?.accessHint(
+                                    hintReceiver?.accessHint(
                                         presenter.accessHintForPresenterIndex(lastAccessedIndex),
                                     )
                                 } else {
@@ -241,11 +259,13 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
-    public operator fun get(index: Int): T? {
+    // @MainThread
+    public operator fun get(@IntRange(from = 0) index: Int): T? {
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
-        receiver?.accessHint(presenter.accessHintForPresenterIndex(index))
+        log(VERBOSE) { "Accessing item index[$index]" }
+        hintReceiver?.accessHint(presenter.accessHintForPresenterIndex(index))
         return presenter.get(index)
     }
 
@@ -256,7 +276,8 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
-    public fun peek(index: Int): T? {
+    // @MainThread
+    public fun peek(@IntRange(from = 0) index: Int): T? {
         return presenter.get(index)
     }
 
@@ -278,7 +299,8 @@ public abstract class PagingDataDiffer<T : Any>(
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     public fun retry() {
-        receiver?.retry()
+        log(DEBUG) { "Retry signal received" }
+        uiReceiver?.retry()
     }
 
     /**
@@ -298,7 +320,8 @@ public abstract class PagingDataDiffer<T : Any>(
      * @sample androidx.paging.samples.refreshSample
      */
     public fun refresh() {
-        receiver?.refresh()
+        log(DEBUG) { "Refresh signal received" }
+        uiReceiver?.refresh()
     }
 
     /**
@@ -317,7 +340,8 @@ public abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    public val loadStateFlow: Flow<CombinedLoadStates> = combinedLoadStatesCollection.flow
+    public val loadStateFlow: StateFlow<CombinedLoadStates?> =
+        combinedLoadStatesCollection.stateFlow
 
     private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> = MutableSharedFlow(
         replay = 0,
@@ -418,6 +442,7 @@ public abstract class PagingDataDiffer<T : Any>(
         dispatchLoadStates: Boolean,
         sourceLoadStates: LoadStates?,
         mediatorLoadStates: LoadStates?,
+        newHintReceiver: HintReceiver,
     ) {
         require(!dispatchLoadStates || sourceLoadStates != null) {
             "Cannot dispatch LoadStates in PagingDataDiffer without source LoadStates set."
@@ -438,6 +463,19 @@ public abstract class PagingDataDiffer<T : Any>(
             onListPresentable = {
                 presenter = newPresenter
                 onListPresentableCalled = true
+                hintReceiver = newHintReceiver
+                log(DEBUG) {
+                    appendMediatorStatesIfNotNull(mediatorLoadStates) {
+                        """Presenting data:
+                            |   first item: ${pages.firstOrNull()?.data?.firstOrNull()}
+                            |   last item: ${pages.lastOrNull()?.data?.lastOrNull()}
+                            |   placeholdersBefore: $placeholdersBefore
+                            |   placeholdersAfter: $placeholdersAfter
+                            |   hintReceiver: $newHintReceiver
+                            |   sourceLoadStates: $sourceLoadStates
+                        """
+                    }
+                }
             },
         )
         check(onListPresentableCalled) {
@@ -460,7 +498,7 @@ public abstract class PagingDataDiffer<T : Any>(
             // Send an initialize hint in case the new list is empty, which would
             // prevent a ViewportHint.Access from ever getting sent since there are
             // no items to bind from initial load.
-            receiver?.accessHint(newPresenter.initializeHint())
+            hintReceiver?.accessHint(newPresenter.initializeHint())
         } else {
             // Transform the last loadAround index from the old list to the new list
             // by passing it through the DiffResult, and pass it forward as a
@@ -470,7 +508,7 @@ public abstract class PagingDataDiffer<T : Any>(
             // the prepend / append load that would have fulfilled it in the old
             // list.
             lastAccessedIndex = transformedLastAccessedIndex
-            receiver?.accessHint(
+            hintReceiver?.accessHint(
                 newPresenter.accessHintForPresenterIndex(
                     transformedLastAccessedIndex,
                 ),
@@ -488,6 +526,7 @@ public abstract class PagingDataDiffer<T : Any>(
  *
  * @suppress
  */
+// @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DifferCallback {
     public fun onChanged(position: Int, count: Int)
     public fun onInserted(position: Int, count: Int)
@@ -501,6 +540,7 @@ public interface DifferCallback {
  * Sending these change payloads is critical for the common case where DefaultItemAnimator won't
  * animate them and re-use the same view holder if possible.
  */
+// @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class DiffingChangePayload {
     ITEM_TO_PLACEHOLDER,
     PLACEHOLDER_TO_ITEM,

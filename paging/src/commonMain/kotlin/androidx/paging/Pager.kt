@@ -17,7 +17,6 @@
 package androidx.paging
 
 import kotlinx.coroutines.flow.Flow
-import kotlin.jvm.JvmOverloads
 
 /**
  * Primary entry point into Paging; constructor for a reactive stream of [PagingData].
@@ -47,7 +46,6 @@ public class Pager<Key : Any, Value : Any>
     pagingSourceFactory: () -> PagingSource<Key, Value>,
 ) {
     // Experimental usage is internal, so opt-in is allowed here.
-    @JvmOverloads
     @OptIn(ExperimentalPagingApi::class)
     public constructor(
         config: PagingConfig,
@@ -70,7 +68,7 @@ public class Pager<Key : Any, Value : Any>
      * you should use the [cachedIn] operator which multicasts the [Flow] in a way that returns a
      * new instance of [PagingData] with cached data pre-loaded.
      */
-    @OptIn(androidx.paging.ExperimentalPagingApi::class)
+    @OptIn(ExperimentalPagingApi::class)
     public val flow: Flow<PagingData<Value>> = PageFetcher(
         pagingSourceFactory = if (
             pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>

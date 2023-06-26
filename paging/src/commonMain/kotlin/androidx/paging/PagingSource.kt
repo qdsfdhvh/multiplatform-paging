@@ -16,17 +16,9 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
+import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadType.REFRESH
-
-/** @suppress */
-@Suppress("DEPRECATION")
-public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
-    key: Key?,
-): PagingSource.LoadParams<Key> = PagingSource.LoadParams.Refresh(
-    key,
-    initialLoadSizeHint,
-    enablePlaceholders,
-)
 
 /**
  * Base class for an abstraction of pageable static data from some source, where loading pages
@@ -81,6 +73,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
     )
 
     internal val invalidateCallbackCount: Int
+        @VisibleForTesting
         get() = invalidateCallbackTracker.callbackCount()
 
     /**
@@ -202,7 +195,14 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          */
         public data class Error<Key : Any, Value : Any>(
             val throwable: Throwable,
-        ) : LoadResult<Key, Value>()
+        ) : LoadResult<Key, Value>() {
+            override fun toString(): String {
+                return """LoadResult.Error(
+                    |   throwable: $throwable
+                    |) 
+                """.trimMargin()
+            }
+        }
 
         /**
          * Invalid result object for [PagingSource.load]
@@ -220,10 +220,16 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * Returning [Invalid] will trigger Paging to [invalidate] this [PagingSource] and
          * terminate any future attempts to [load] from this [PagingSource]
          */
-        public class Invalid<Key : Any, Value : Any> : LoadResult<Key, Value>()
+        public class Invalid<Key : Any, Value : Any> : LoadResult<Key, Value>() {
+            override fun toString(): String {
+                return "LoadResult.Invalid"
+            }
+        }
 
         /**
          * Success result object for [PagingSource.load].
+         *
+         * As a convenience, iterating on this object will iterate through its loaded [data].
          *
          * @sample androidx.paging.samples.pageKeyedPage
          * @sample androidx.paging.samples.pageIndexedPage
@@ -243,14 +249,18 @@ public abstract class PagingSource<Key : Any, Value : Any> {
              */
             val nextKey: Key?,
             /**
-             * Optional count of items before the loaded data.
+             * Count of items before the loaded data. Must be implemented if
+             * [jumping][PagingSource.jumpingSupported] is enabled. Optional otherwise.
              */
+            @IntRange(from = COUNT_UNDEFINED.toLong())
             val itemsBefore: Int = COUNT_UNDEFINED,
             /**
-             * Optional count of items after the loaded data.
+             * Count of items after the loaded data. Must be implemented if
+             * [jumping][PagingSource.jumpingSupported] is enabled. Optional otherwise.
              */
+            @IntRange(from = COUNT_UNDEFINED.toLong())
             val itemsAfter: Int = COUNT_UNDEFINED,
-        ) : LoadResult<Key, Value>() {
+        ) : LoadResult<Key, Value>(), Iterable<Value> {
 
             /**
              * Success result object for [PagingSource.load].
@@ -277,6 +287,23 @@ public abstract class PagingSource<Key : Any, Value : Any> {
                 }
             }
 
+            override fun iterator(): Iterator<Value> {
+                return data.listIterator()
+            }
+
+            override fun toString(): String {
+                return """LoadResult.Page(
+                    |   data size: ${data.size}
+                    |   first Item: ${data.firstOrNull()}
+                    |   last Item: ${data.lastOrNull()}
+                    |   nextKey: $nextKey
+                    |   prevKey: $prevKey
+                    |   itemsBefore: $itemsBefore
+                    |   itemsAfter: $itemsAfter
+                    |) 
+                """.trimMargin()
+            }
+
             public companion object {
                 public const val COUNT_UNDEFINED: Int = Int.MIN_VALUE
 
@@ -299,6 +326,10 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      *
      * [PagingSource]s that support jumps should override [getRefreshKey] to return a [Key] that
      * would load data fulfilling the viewport given a user's current [PagingState.anchorPosition].
+     *
+     * To support jumping, the [LoadResult.Page] returned from this PagingSource must implement
+     * [itemsBefore][LoadResult.Page.itemsBefore] and [itemsAfter][LoadResult.Page.itemsAfter] to
+     * notify Paging the boundaries within which it can jump.
      *
      * @see [PagingConfig.jumpThreshold]
      */
@@ -326,7 +357,9 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * this method should have no effect.
      */
     public fun invalidate() {
-        invalidateCallbackTracker.invalidate()
+        if (invalidateCallbackTracker.invalidate()) {
+            log(DEBUG) { "Invalidated PagingSource $this" }
+        }
     }
 
     /**

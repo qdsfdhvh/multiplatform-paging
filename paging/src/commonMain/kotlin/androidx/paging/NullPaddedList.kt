@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import androidx.annotation.RestrictTo
+
 /**
  * Interface to partially-loaded, paged data (generally an immutable snapshot).
  *
@@ -23,6 +25,7 @@ package androidx.paging
  *
  * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NullPaddedList<T> {
     public val placeholdersBefore: Int
     public fun getFromStorage(localIndex: Int): T

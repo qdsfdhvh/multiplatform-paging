@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.paging.PagingSource.LoadResult.Page
 
 /**
@@ -41,6 +42,7 @@ public class PagingState<Key : Any, Value : Any> constructor(
     /**
      * Number of placeholders before the first loaded item if placeholders are enabled, otherwise 0.
      */
+    @IntRange(from = 0)
     private val leadingPlaceholderCount: Int,
 ) {
 

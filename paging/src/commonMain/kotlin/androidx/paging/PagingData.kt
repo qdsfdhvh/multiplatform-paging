@@ -29,15 +29,26 @@ import kotlin.jvm.JvmStatic
  */
 public class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
-    internal val receiver: UiReceiver,
+    internal val uiReceiver: UiReceiver,
+    internal val hintReceiver: HintReceiver,
+
+    /**
+     * A lambda returning a nullable PageEvent.Insert containing data which can be accessed
+     * and displayed synchronously without requiring collection.
+     *
+     * For example, the data may be real loaded data that has been cached via [cachedIn].
+     */
+    private val cachedPageEvent: () -> PageEvent.Insert<T>? = { null },
 ) {
     public companion object {
-        internal val NOOP_RECEIVER = object : UiReceiver {
-            override fun accessHint(viewportHint: ViewportHint) {}
-
+        internal val NOOP_UI_RECEIVER = object : UiReceiver {
             override fun retry() {}
 
             override fun refresh() {}
+        }
+
+        internal val NOOP_HINT_RECEIVER = object : HintReceiver {
+            override fun accessHint(viewportHint: ViewportHint) {}
         }
 
         /**
@@ -55,7 +66,8 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = null,
                 ),
             ),
-            receiver = NOOP_RECEIVER,
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
         )
 
         /**
@@ -81,7 +93,8 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = mediatorLoadStates,
                 ),
             ),
-            receiver = NOOP_RECEIVER,
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
         )
 
         /**
@@ -102,7 +115,17 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = null,
                 ),
             ),
-            receiver = NOOP_RECEIVER,
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
+            cachedPageEvent = {
+                PageEvent.Insert.Refresh(
+                    pages = listOf(TransformablePage(0, data)),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    sourceLoadStates = LoadStates.IDLE,
+                    mediatorLoadStates = null,
+                )
+            },
         )
 
         /**
@@ -129,7 +152,19 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = mediatorLoadStates,
                 ),
             ),
-            receiver = NOOP_RECEIVER,
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
+            cachedPageEvent = {
+                PageEvent.Insert.Refresh(
+                    pages = listOf(TransformablePage(0, data)),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    sourceLoadStates = sourceLoadStates,
+                    mediatorLoadStates = mediatorLoadStates,
+                )
+            },
         )
     }
+
+    internal fun cachedEvent(): PageEvent.Insert<T>? = cachedPageEvent()
 }

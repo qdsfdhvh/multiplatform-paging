@@ -16,16 +16,16 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmOverloads
 
 /**
  * An object used to configure loading behavior within a [Pager], as it loads content from a
  * [PagingSource].
  */
-public class PagingConfig @JvmOverloads public constructor(
+public class PagingConfig public constructor(
     /**
      * Defines the number of items loaded at once from the [PagingSource].
      *
@@ -61,6 +61,7 @@ public class PagingConfig @JvmOverloads public constructor(
      * placeholder item (with placeholders) or end of list (without) while scrolling.
      */
     @JvmField
+    @IntRange(from = 0)
     public val prefetchDistance: Int = pageSize,
 
     /**
@@ -88,6 +89,7 @@ public class PagingConfig @JvmOverloads public constructor(
      * [Page][PagingSource.LoadResult.Page].
      */
     @JvmField
+    @IntRange(from = 1)
     public val initialLoadSize: Int = pageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER,
     /**
      * Defines the maximum number of items that may be loaded into [PagingData] before pages should
@@ -113,6 +115,7 @@ public class PagingConfig @JvmOverloads public constructor(
      * @see PagingConfig.MAX_SIZE_UNBOUNDED
      */
     @JvmField
+    @IntRange(from = 2)
     public val maxSize: Int = MAX_SIZE_UNBOUNDED,
 
     /**

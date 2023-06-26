@@ -70,6 +70,7 @@ public class CombinedLoadStates(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
+        if (other == null || this::class != other::class) return false
 
         other as CombinedLoadStates
 

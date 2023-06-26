@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.CheckResult
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
@@ -170,6 +171,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
     /**
      * @return true if insert was applied, false otherwise.
      */
+    @CheckResult
     fun insert(loadId: Int, loadType: LoadType, page: Page<Key, Value>): Boolean {
         when (loadType) {
             REFRESH -> {

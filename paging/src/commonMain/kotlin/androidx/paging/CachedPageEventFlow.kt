@@ -16,13 +16,13 @@
 
 package androidx.paging
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.takeWhile
@@ -107,6 +107,12 @@ internal class CachedPageEventFlow<T : Any>(
                 }
             }
     }
+
+    /**
+     * Returns cached data as PageEvent.Insert. Null if cached data is empty (for example on
+     * initial refresh).
+     */
+    internal fun getCachedEvent(): PageEvent.Insert<T>? = pageController.getCachedEvent()
 }
 
 private class FlattenedPageController<T : Any> {
@@ -140,6 +146,10 @@ private class FlattenedPageController<T : Any> {
             }
         }
     }
+
+    fun getCachedEvent(): PageEvent.Insert<T>? = list.getAsEvents().firstOrNull()?.let {
+        if (it is PageEvent.Insert && it.loadType == LoadType.REFRESH) it else null
+    }
 }
 
 /**
@@ -148,6 +158,7 @@ private class FlattenedPageController<T : Any> {
  *
  * There is no synchronization in this code so it should be used with locks around if necessary.
  */
+@VisibleForTesting
 internal class FlattenedPageEventStorage<T : Any> {
     private var placeholdersBefore: Int = 0
     private var placeholdersAfter: Int = 0

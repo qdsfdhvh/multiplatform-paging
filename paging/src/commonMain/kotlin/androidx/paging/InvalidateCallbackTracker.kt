@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.platform.ReentrantLock
 
 /**
@@ -33,6 +34,7 @@ internal class InvalidateCallbackTracker<T>(
     internal var invalid = false
         private set
 
+    @VisibleForTesting
     internal fun callbackCount() = callbacks.size
 
     internal fun registerInvalidatedCallback(callback: T) {
@@ -68,12 +70,12 @@ internal class InvalidateCallbackTracker<T>(
         }
     }
 
-    internal fun invalidate() {
-        if (invalid) return
+    internal fun invalidate(): Boolean {
+        if (invalid) return false
 
         var callbacksToInvoke: List<T>? = null
         lock.withLock {
-            if (invalid) return
+            if (invalid) return false
 
             invalid = true
             callbacksToInvoke = callbacks.toList()
@@ -81,5 +83,6 @@ internal class InvalidateCallbackTracker<T>(
         }
 
         callbacksToInvoke?.forEach(callbackInvoker)
+        return true
     }
 }

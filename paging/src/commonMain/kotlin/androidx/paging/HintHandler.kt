@@ -158,6 +158,7 @@ internal fun ViewportHint.shouldPrioritizeOver(
         // Prioritize hints that would load the most items
         previous.presentedItemsBeyondAnchor(loadType) <= presentedItemsBeyondAnchor(loadType) ->
             false
+
         else -> true
     }
 }

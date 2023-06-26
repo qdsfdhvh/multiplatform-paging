@@ -22,6 +22,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+                implementation("androidx.annotation:annotation:1.7.0-alpha02")
             }
         }
         val jvmMain by getting

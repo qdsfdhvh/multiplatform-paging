@@ -16,10 +16,13 @@
 
 package androidx.paging
 
+import androidx.annotation.AnyThread
+import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.platform.Function
-import androidx.paging.platform.defaultDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
@@ -105,6 +108,7 @@ internal constructor(internal val type: KeyType) {
     )
 
     internal val invalidateCallbackCount: Int
+        @VisibleForTesting
         get() = invalidateCallbackTracker.callbackCount()
 
     /**
@@ -236,7 +240,7 @@ internal constructor(internal val type: KeyType) {
 
         @JvmOverloads
         public fun asPagingSourceFactory(
-            fetchDispatcher: CoroutineDispatcher = defaultDispatcher,
+            fetchDispatcher: CoroutineDispatcher = Dispatchers.IO,
         ): () -> PagingSource<Key, Value> = SuspendingPagingSourceFactory(
             delegate = {
                 LegacyPagingSource(fetchDispatcher, create())
@@ -348,6 +352,7 @@ internal constructor(internal val type: KeyType) {
          * data source to invalidate itself during its load methods, or for an outside source to
          * invalidate it.
          */
+        @AnyThread
         public fun onInvalidated()
     }
 
@@ -365,6 +370,7 @@ internal constructor(internal val type: KeyType) {
      * @param onInvalidatedCallback The callback, will be invoked on thread that invalidates the
      * [DataSource].
      */
+    @AnyThread
     @Suppress("RegistrationName")
     public open fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         invalidateCallbackTracker.registerInvalidatedCallback(onInvalidatedCallback)
@@ -375,6 +381,7 @@ internal constructor(internal val type: KeyType) {
      *
      * @param onInvalidatedCallback The previously added callback.
      */
+    @AnyThread
     @Suppress("RegistrationName")
     public open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         invalidateCallbackTracker.unregisterInvalidatedCallback(onInvalidatedCallback)
@@ -385,6 +392,7 @@ internal constructor(internal val type: KeyType) {
      *
      * If invalidate has already been called, this method does nothing.
      */
+    @AnyThread
     public open fun invalidate() {
         invalidateCallbackTracker.invalidate()
     }
